@@ -151,7 +151,7 @@
         bulid : function(){
             var floorGeometry = new THREE.PlaneGeometry( this.width, this.height, 100, 100 );
             floorGeometry.rotateX( - Math.PI / 2 );
-            var floorMaterial = new THREE.MeshBasicMaterial( {color: 0x333333, side: THREE.DoubleSide});
+            var floorMaterial = new THREE.MeshBasicMaterial( {color: 0x999999, side: THREE.DoubleSide});
             var textureLoader = new THREE.TextureLoader();
             textureLoader.load( "resources/floor.jpg", function( map ) {
                 map.wrapS = THREE.RepeatWrapping;
@@ -175,7 +175,7 @@
     wall.prototype = {
         build : function(){
             var geometry = new THREE.PlaneGeometry( this.width, this.height, 10,10);
-            var material = new THREE.MeshBasicMaterial( {color: 0x333333, side: THREE.DoubleSide} );
+            var material = new THREE.MeshBasicMaterial( {color: 0x999999, side: THREE.DoubleSide} );
             var textureLoader = new THREE.TextureLoader();
             textureLoader.load( "resources/brick_diffuse.jpg", function( map ) {
                 map.wrapS = THREE.RepeatWrapping;
@@ -185,14 +185,14 @@
                 material.map = map;
                 material.needsUpdate = true;
             } );
-            textureLoader.load( "resources/brick_bump.jpg", function( map ) {
-                map.wrapS = THREE.RepeatWrapping;
-                map.wrapT = THREE.RepeatWrapping;
-                map.anisotropy = 20;
-                map.repeat.set(8, 0.5);
-                material.map = map;
-                material.needsUpdate = true;
-            } );
+            // textureLoader.load( "resources/brick_bump.jpg", function( map ) {
+            //     map.wrapS = THREE.RepeatWrapping;
+            //     map.wrapT = THREE.RepeatWrapping;
+            //     map.anisotropy = 20;
+            //     map.repeat.set(8, 0.5);
+            //     material.map = map;
+            //     material.needsUpdate = true;
+            // } );
             this.wall = new THREE.Mesh( geometry, material );
             // this.wall.receiveShadow = true;
             return this.wall;
@@ -215,14 +215,26 @@
         build : function(){
             var triangle = new THREE.Shape();
             triangle.moveTo(-(this.width/2+5),0+this.top);
-            triangle.lineTo(0,20+this.top);
+            triangle.lineTo(0,25+this.top);
             triangle.lineTo(this.width/2+5,0+this.top);
             triangle.lineTo(this.width/2+10,0+this.top);
-            triangle.lineTo(0,20+this.top+5);
+            triangle.lineTo(0,25+this.top+5);
             triangle.lineTo(-(this.width/2+10),0+this.top);
 
-            var geometry = new THREE.ShapeBufferGeometry(triangle);
-            this.roof  = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: 0x8080f0 ,side: THREE.DoubleSide}));
+            var extrudeSettings = { amount: 1, bevelEnabled: true, bevelSegments: 1, steps: 10, bevelSize: 2, bevelThickness: 310 }
+            var geometry = new THREE.ExtrudeGeometry(triangle,extrudeSettings);
+            var material = new THREE.MeshBasicMaterial( { color: 0xffffff ,side: THREE.DoubleSide,wireframe:false})
+            var textureLoader = new THREE.TextureLoader();
+            textureLoader.load( "resources/roof.jpg", function( map ) {
+                map.wrapS = THREE.RepeatWrapping;
+                map.wrapT = THREE.RepeatWrapping;
+                map.anisotropy = 20;
+                map.repeat.set(0.3, 0.03);
+                material.map = map;
+                material.needsUpdate = true;
+            } );
+            this.roof  = new THREE.Mesh( geometry, material);
+            // this.roof.scale.set(1,1,310)
             return this.roof;
         }
     };

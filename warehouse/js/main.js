@@ -11,7 +11,7 @@ window.onload = function(){
         myroof = null; //屋顶
 
     var scene = new THREE.Scene(); // 场景
-    scene.background = new THREE.Color( 0xffffff );
+    scene.background = new THREE.Color( 0x000000);
 
     var camera = new THREE.PerspectiveCamera(75, SceneWidth / SceneHeight, 1, 1500); //相机的设置
     camera.position.set( 0, 10, 0);
