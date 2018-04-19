@@ -35,31 +35,28 @@ window.onload = function(){
     /**                     四面墙 前、后、左、右                **/
     /**                                                          **/
     /**----------------------------------------------------------**/
-    var front_wall = new wall(wareHouseWidth,wallHeight);
-    scene.add(front_wall.build());
-    front_wall.wall.position.z = wareHouseHeight/2;
-    front_wall.wall.position.y = front_wall.height/2;
-    arr_wall.push(front_wall);
+    var wall_1 = new wall(wareHouseWidth,wallHeight);
+    scene.add(wall_1.build());
+    wall_1.wall.position.set(-wareHouseWidth/2,0,-wareHouseHeight/2);
+    arr_wall.push(wall_1);
 
-    var back_wall = new wall(wareHouseWidth,wallHeight);
-    scene.add(back_wall.build());
-    back_wall.wall.position.z = -wareHouseHeight/2;
-    back_wall.wall.position.y = back_wall.height/2;
-    arr_wall.push(back_wall);
+    var wall_2 = new wall(wareHouseWidth,wallHeight);
+    scene.add(wall_2.build());
+    wall_2.wall.position.set(-wareHouseWidth/2,0,wareHouseHeight/2);
+    arr_wall.push(wall_2);
 
-    var left_wall = new wall(wareHouseHeight,wallHeight);
-    scene.add(left_wall.build());
-    left_wall.wall.position.x = -wareHouseWidth/2;
-    left_wall.wall.position.y = left_wall.height/2;
-    left_wall.wall.rotation.y = - Math.PI / 2;
-    arr_wall.push(left_wall);
+    var wall_3 = new wall(wareHouseHeight,wallHeight);
+    scene.add(wall_3.build());
+    wall_3.wall.rotation.y = Math.PI/2;
+    wall_3.wall.position.set(wareHouseWidth/2,0,wareHouseHeight/2);
+    arr_wall.push(wall_3);
 
-    var right_wall = new wall(wareHouseHeight,wallHeight);
-    scene.add(right_wall.build());
-    right_wall.wall.position.x = wareHouseWidth/2;
-    right_wall.wall.position.y = right_wall.height/2;
-    right_wall.wall.rotation.y = - Math.PI / 2;
-    arr_wall.push(right_wall);
+    var wall_4 = new wall(wareHouseHeight,wallHeight);
+    scene.add(wall_4.build());
+    wall_4.wall.rotation.y = Math.PI/2;
+    wall_4.wall.position.set(-wareHouseWidth/2,0,wareHouseHeight/2);
+    arr_wall.push(wall_4);
+
 
     /**-----------------------------------------------------------**/
     /**                                                          **/

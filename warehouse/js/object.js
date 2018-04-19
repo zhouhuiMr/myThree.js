@@ -151,16 +151,16 @@
         bulid : function(){
             var floorGeometry = new THREE.PlaneGeometry( this.width, this.height, 100, 100 );
             floorGeometry.rotateX( - Math.PI / 2 );
-            var floorMaterial = new THREE.MeshBasicMaterial( {color: 0x999999, side: THREE.DoubleSide});
-            var textureLoader = new THREE.TextureLoader();
-            textureLoader.load( "resources/floor.jpg", function( map ) {
-                map.wrapS = THREE.RepeatWrapping;
-                map.wrapT = THREE.RepeatWrapping;
-                map.anisotropy = 20;
-                map.repeat.set(32, 32);
-                floorMaterial.map = map;
-                floorMaterial.needsUpdate = true;
-            } );
+            var floorMaterial = new THREE.MeshBasicMaterial( {color: 0x4682B4, side: THREE.DoubleSide});
+            // var textureLoader = new THREE.TextureLoader();
+            // textureLoader.load( "resources/floor.jpg", function( map ) {
+            //     map.wrapS = THREE.RepeatWrapping;
+            //     map.wrapT = THREE.RepeatWrapping;
+            //     map.anisotropy = 20;
+            //     map.repeat.set(32, 32);
+            //     floorMaterial.map = map;
+            //     floorMaterial.needsUpdate = true;
+            // } );
             this.floor = new THREE.Mesh( floorGeometry, floorMaterial );
             return this.floor;
         }
@@ -171,30 +171,21 @@
         this.wall = null;
         this.width = width;
         this.height = height;
+        this.thickness = 1;
     };
     wall.prototype = {
         build : function(){
-            var geometry = new THREE.PlaneGeometry( this.width, this.height, 10,10);
-            var material = new THREE.MeshBasicMaterial( {color: 0x999999, side: THREE.DoubleSide} );
-            var textureLoader = new THREE.TextureLoader();
-            textureLoader.load( "resources/brick_diffuse.jpg", function( map ) {
-                map.wrapS = THREE.RepeatWrapping;
-                map.wrapT = THREE.RepeatWrapping;
-                map.anisotropy = 20;
-                map.repeat.set(8, 0.5);
-                material.map = map;
-                material.needsUpdate = true;
-            } );
-            // textureLoader.load( "resources/brick_bump.jpg", function( map ) {
-            //     map.wrapS = THREE.RepeatWrapping;
-            //     map.wrapT = THREE.RepeatWrapping;
-            //     map.anisotropy = 20;
-            //     map.repeat.set(8, 0.5);
-            //     material.map = map;
-            //     material.needsUpdate = true;
-            // } );
-            this.wall = new THREE.Mesh( geometry, material );
-            // this.wall.receiveShadow = true;
+            var rectangle = new THREE.Shape();
+            rectangle.moveTo(0,0);
+            rectangle.lineTo(this.width,0);
+            rectangle.lineTo(this.width,this.height);
+            rectangle.lineTo(0,this.height);
+            rectangle.lineTo(0,0);
+
+            var extrudeSettings = { amount: 1, bevelEnabled: true, bevelSegments: 1, steps: 10, bevelSize: 1, bevelThickness: this.thickness};
+            var geometry = new THREE.ExtrudeGeometry(rectangle,extrudeSettings);
+            var material = new THREE.MeshBasicMaterial({ color: 0xBDB76B ,side: THREE.DoubleSide,wireframe:false});
+            this.wall  = new THREE.Mesh(geometry, material);
             return this.wall;
         }
     };
@@ -221,18 +212,9 @@
             triangle.lineTo(0,25+this.top+5);
             triangle.lineTo(-(this.width/2+10),0+this.top);
 
-            var extrudeSettings = { amount: 1, bevelEnabled: true, bevelSegments: 1, steps: 10, bevelSize: 2, bevelThickness: 310 }
+            var extrudeSettings = { amount: 1, bevelEnabled: true, bevelSegments: 1, steps: 10, bevelSize: 2, bevelThickness: 310 };
             var geometry = new THREE.ExtrudeGeometry(triangle,extrudeSettings);
-            var material = new THREE.MeshBasicMaterial( { color: 0xffffff ,side: THREE.DoubleSide,wireframe:false})
-            var textureLoader = new THREE.TextureLoader();
-            textureLoader.load( "resources/roof.jpg", function( map ) {
-                map.wrapS = THREE.RepeatWrapping;
-                map.wrapT = THREE.RepeatWrapping;
-                map.anisotropy = 20;
-                map.repeat.set(0.3, 0.03);
-                material.map = map;
-                material.needsUpdate = true;
-            } );
+            var material = new THREE.MeshBasicMaterial( { color: 0xdddedf ,side: THREE.DoubleSide,wireframe:false});
             this.roof  = new THREE.Mesh( geometry, material);
             // this.roof.scale.set(1,1,310)
             return this.roof;
