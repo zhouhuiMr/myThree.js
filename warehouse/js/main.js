@@ -36,6 +36,7 @@ window.onload = function(){
     /**                                                          **/
     /**----------------------------------------------------------**/
     var wall_1 = new wall(wareHouseWidth,wallHeight);
+    wall_1.additional = new win(200,100,wareHouseWidth/2,0);
     scene.add(wall_1.build());
     wall_1.wall.position.set(-wareHouseWidth/2,0,-wareHouseHeight/2);
     arr_wall.push(wall_1);

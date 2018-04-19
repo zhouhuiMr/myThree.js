@@ -172,6 +172,7 @@
         this.width = width;
         this.height = height;
         this.thickness = 1;
+        this.additional = null;
     };
     wall.prototype = {
         build : function(){
@@ -182,10 +183,17 @@
             rectangle.lineTo(0,this.height);
             rectangle.lineTo(0,0);
 
+            if(this.additional != null){
+                this.additional.build(rectangle);
+            }
+
+
             var extrudeSettings = { amount: 1, bevelEnabled: true, bevelSegments: 1, steps: 10, bevelSize: 1, bevelThickness: this.thickness};
             var geometry = new THREE.ExtrudeGeometry(rectangle,extrudeSettings);
             var material = new THREE.MeshBasicMaterial({ color: 0xBDB76B ,side: THREE.DoubleSide,wireframe:false});
             this.wall  = new THREE.Mesh(geometry, material);
+
+
             return this.wall;
         }
     };
@@ -221,4 +229,25 @@
         }
     };
     window.roof = roof;
+
+    var win = function(width,height,x,y){
+        this.win = null;
+        this.width = width;
+        this.height = height;
+        this.x = x;
+        this.y = y;
+    };
+    win.prototype = {
+        build : function(shape){
+            this.win = new THREE.Path();
+            this.win.moveTo(this.x,this.y);
+            this.win.lineTo(this.x + this.width,this.y);
+            this.win.lineTo(this.x + this.width,this.y+this.height);
+            this.win.lineTo(this.x,this.y+this.height);
+            this.win.lineTo(this.x,this.y);
+            shape.holes.push(this.win);
+            return this.win;
+        }
+    };
+    window.win = win;
 })(window);
