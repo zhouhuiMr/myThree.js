@@ -27,7 +27,7 @@ window.onload = function(){
     /**                         地面                             **/
     /**                                                          **/
     /**----------------------------------------------------------**/
-    myfloor = new floor(wareHouseWidth,wareHouseHeight);
+    myfloor = new floor(wareHouseWidth*2,wareHouseHeight*2);
     scene.add(myfloor.bulid());
 
     /**----------------------------------------------------------**/
@@ -36,27 +36,59 @@ window.onload = function(){
     /**                                                          **/
     /**----------------------------------------------------------**/
     var wall_1 = new wall(wareHouseWidth,wallHeight);
-    wall_1.additional = new win(200,100,wareHouseWidth/2,0);
+    wall_1.additional = function(rectangle){
+        new frame(200,100,wareHouseWidth/2,0).build(rectangle);
+        new frame(120,60,100,20).build(rectangle);
+    };
     scene.add(wall_1.build());
     wall_1.wall.position.set(-wareHouseWidth/2,0,-wareHouseHeight/2);
     arr_wall.push(wall_1);
 
     var wall_2 = new wall(wareHouseWidth,wallHeight);
+    wall_2.additional = function(rectangle){
+        new frame(60,20,600,75).build(rectangle);
+        new frame(60,20,120,75).build(rectangle);
+    };
     scene.add(wall_2.build());
     wall_2.wall.position.set(-wareHouseWidth/2,0,wareHouseHeight/2);
     arr_wall.push(wall_2);
 
     var wall_3 = new wall(wareHouseHeight,wallHeight);
+    wall_3.additional = function(rectangle){
+        new frame(60,20,wareHouseHeight/2-30,75).build(rectangle);
+    };
     scene.add(wall_3.build());
     wall_3.wall.rotation.y = Math.PI/2;
     wall_3.wall.position.set(wareHouseWidth/2,0,wareHouseHeight/2);
     arr_wall.push(wall_3);
 
     var wall_4 = new wall(wareHouseHeight,wallHeight);
+    wall_4.additional = function(rectangle){
+        new frame(60,20,wareHouseHeight/2-30,75).build(rectangle);
+    };
     scene.add(wall_4.build());
     wall_4.wall.rotation.y = Math.PI/2;
     wall_4.wall.position.set(-wareHouseWidth/2,0,wareHouseHeight/2);
     arr_wall.push(wall_4);
+
+    // var light = new THREE.PointLight( 0xffffff, 1 );
+    // camera.add( light );
+
+    /**----------------------------------------------------------**/
+    /**                         可拉动的窗户                     **/
+    /**----------------------------------------------------------**/
+    var wareHouseWindow = new mywindow(120,60);
+    wareHouseWindow.body.position.set((-wareHouseWidth/2+100),20,-wareHouseHeight/2);
+    scene.add(wareHouseWindow.build());
+
+    /**----------------------------------------------------------**/
+    /**                             自动门                       **/
+    /**----------------------------------------------------------**/
+    var wareHouseDoor = new door(200,100);
+    wareHouseDoor.body.position.set(0,0,-wareHouseHeight/2);
+    scene.add(wareHouseDoor.build());
+
+
 
 
     /**-----------------------------------------------------------**/
@@ -64,8 +96,8 @@ window.onload = function(){
     /**                         屋顶                             **/
     /**                                                          **/
     /**----------------------------------------------------------**/
-    myroof = new roof(wareHouseWidth,wareHouseHeight,wallHeight);
-    scene.add(myroof.build());
+    // myroof = new roof(wareHouseWidth,wareHouseHeight,wallHeight);
+        // scene.add(myroof.build());
 
     var controls = new controller(scene,camera);
 
