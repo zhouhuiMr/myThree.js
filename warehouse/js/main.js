@@ -88,7 +88,11 @@ window.onload = function(){
     wareHouseDoor.body.position.set(0,0,-wareHouseHeight/2);
     scene.add(wareHouseDoor.build());
 
-
+    /**----------------------------------------------------------**/
+    /**                             通风口                       **/
+    /**----------------------------------------------------------**/
+    var airDuct_1 = new airDuct(100,60);
+    scene.add(airDuct_1.build());
 
 
     /**-----------------------------------------------------------**/

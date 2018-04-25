@@ -142,24 +142,61 @@
     };
     window.controller = controller;
 
+    /**----------------------------------------------------------**/
+    /**                      带有边框物体的父类                  **/
+    /**----------------------------------------------------------**/
     var objectFrame = function(width,height){
         this.body = new THREE.Group();
         this.width = width;
         this.height = height;
         this.thickness = 1;
         this.FrameWidth = 1;
+        /**
+         * leftWidth   左侧边框的宽度
+         * topWidth    顶部边框的宽度
+         * rightWidth  右侧边框的宽度
+         * bottomWidth 底部边框的宽度
+         * color       边框的颜色
+         * */
+        this.frame = function(leftWidth,topWidth,rightWidth,bottomWidth,color){
+            var Shap = new THREE.Shape();
+            Shap.moveTo(0,0);
+            Shap.lineTo(this.width,0);
+            Shap.lineTo(this.width,this.height);
+            Shap.lineTo(0,this.height);
+            Shap.lineTo(0,0);
+
+            var Path = new THREE.Path();
+            Path.moveTo(leftWidth,bottomWidth);
+            Path.lineTo(this.width-rightWidth,bottomWidth);
+            Path.lineTo(this.width-rightWidth,this.height-topWidth);
+            Path.lineTo(leftWidth,this.height-topWidth);
+            Path.lineTo(leftWidth,bottomWidth);
+            Shap.holes.push(Path);
+
+            var extrudeSettings = {
+                amount: 1,
+                bevelEnabled: true,
+                bevelSegments: 1,
+                steps: 1,
+                bevelSize: 0,
+                bevelThickness: this.thickness};
+
+            var Geometry = new THREE.ExtrudeGeometry(Shap,extrudeSettings);
+            var Material = new THREE.MeshBasicMaterial( { color: color ,side: THREE.DoubleSide,wireframe:false});
+            var Frame = new THREE.Mesh(Geometry, Material);
+            return Frame;
+        };
         this.build = function(){
             return this.body;
-        }
+        };
     };
     objectFrame.prototype = {
         init : function(){},
     };
 
     /**----------------------------------------------------------**/
-    /**                                                          **/
     /**                         创建地板对象                     **/
-    /**                                                          **/
     /**----------------------------------------------------------**/
     var floor = function(width,height){
         this.floor = null;
@@ -213,8 +250,14 @@
 
             var extrudeSettings = { amount: 1, bevelEnabled: true, bevelSegments: 1, steps: 10, bevelSize: 1, bevelThickness: this.thickness};
             var geometry = new THREE.ExtrudeGeometry(rectangle,extrudeSettings);
-            var material = new THREE.MeshBasicMaterial({ color: 0xBDB76B ,side: THREE.DoubleSide,wireframe:false});
-            var mesh = new THREE.Mesh(geometry, material)
+            var material = new THREE.MeshBasicMaterial({
+                color: 0xBDB76B ,
+                side: THREE.DoubleSide,
+                roughness: 2,
+                metalness: 1,
+                flatShading: true,
+                wireframe:false});
+            var mesh = new THREE.Mesh(geometry, material);
             this.wall.add(mesh);
 
             return this.wall;
@@ -295,32 +338,7 @@
     };
     mywindow.prototype = {
         init : function(){
-            var winFrameShape = new THREE.Shape();
-            winFrameShape.moveTo(0,0);
-            winFrameShape.lineTo(this.width,0);
-            winFrameShape.lineTo(this.width,this.height);
-            winFrameShape.lineTo(0,this.height);
-            winFrameShape.lineTo(0,0);
-
-            var frame = new THREE.Path();
-            frame.moveTo(this.FrameWidth,this.FrameWidth);
-            frame.lineTo(this.width-this.FrameWidth,this.FrameWidth);
-            frame.lineTo(this.width-this.FrameWidth,this.height-this.FrameWidth);
-            frame.lineTo(this.FrameWidth,this.height-this.FrameWidth);
-            frame.lineTo(this.FrameWidth,this.FrameWidth);
-
-            winFrameShape.holes.push(frame);
-
-            var extrudeSettings = {
-                amount: 1,
-                bevelEnabled: true,
-                bevelSegments: 1,
-                steps: 1,
-                bevelSize: 1,
-                bevelThickness: this.thickness};
-            var geometry = new THREE.ExtrudeGeometry(winFrameShape,extrudeSettings);
-            var winFrame = new THREE.MeshBasicMaterial( { color: 0xE4E4E4 ,side: THREE.DoubleSide,wireframe:false});
-            var mesh = new THREE.Mesh( geometry, winFrame);
+            this.body.add(this.frame(2,2,2,2,0xE4E4E4));
 
             //固定的玻璃\
             var glassWidth = (this.width-this.FrameWidth*2)/2,
@@ -350,9 +368,14 @@
             //移动范围1.5倍的玻璃的宽度到0.5倍玻璃的宽度
             this.removableGlassBody.position.set(glassWidth*3/2,glassHeight/2,0.5);
 
-            this.body.add(mesh);
             this.body.add(fixedGlass);
             this.body.add(this.removableGlassBody);
+        },
+        open : function(){
+
+        },
+        close : function(){
+
         }
     };
     window.mywindow = mywindow;
@@ -365,36 +388,16 @@
         objectFrame.call(this,width,height);
         this.GlassDoor1 = null;
         this.GlassDoor2 = null;
+        this.isOpening = false;
+        this.isClosing = false;
+        this.isOpened = false;
+        this.isClosed = true;
+        this.doorSpeed = 0.5;
         this.init();
     };
     door.prototype = {
         init : function(){
-            var doorFrameShap = new THREE.Shape();
-            doorFrameShap.moveTo(0,0);
-            doorFrameShap.lineTo(this.width,0);
-            doorFrameShap.lineTo(this.width,this.height);
-            doorFrameShap.lineTo(0,this.height);
-            doorFrameShap.lineTo(0,0);
-
-            var frame = new THREE.Path();
-            frame.moveTo(this.FrameWidth,0.1);
-            frame.lineTo(this.width-this.FrameWidth,0.1);
-            frame.lineTo(this.width-this.FrameWidth,this.height-this.FrameWidth*5);
-            frame.lineTo(this.FrameWidth,this.height-this.FrameWidth*5);
-            frame.lineTo(this.FrameWidth,0.1);
-            doorFrameShap.holes.push(frame);
-
-            var extrudeSettings = {
-                amount: 1,
-                bevelEnabled: true,
-                bevelSegments: 1,
-                steps: 1,
-                bevelSize: 0,
-                bevelThickness: this.thickness};
-
-            var doorFrameGeometry = new THREE.ExtrudeGeometry(doorFrameShap,extrudeSettings);
-            var doorFrameMaterial = new THREE.MeshBasicMaterial( { color: 0xE4E4E4 ,side: THREE.DoubleSide,wireframe:false});
-            var doorFrame = new THREE.Mesh(doorFrameGeometry, doorFrameMaterial);
+            this.body.add(this.frame(1,5,1,0.1,0xE4E4E4));
 
             this.GlassDoor1 = new glassDoor(this.width/2-0.5,this.height-1);
             this.GlassDoor1.body.position.set(0.5,0.5,0);
@@ -403,8 +406,36 @@
             this.GlassDoor2 = new glassDoor(this.width/2-0.5,this.height-1);
             this.GlassDoor2.body.position.set(this.width/2-0.5,0.5,0);
             this.body.add(this.GlassDoor2.body);
-
-            this.body.add(doorFrame);
+        },
+        open : function(){
+            if(this.GlassDoor1 != null && this.GlassDoor2 != null){
+                if(!this.isOpened){
+                    if(this.GlassDoor1.body.position.x > -this.width/2 && this.GlassDoor2.body.position.x < this.width){
+                        this.isOpening = true;
+                        this.isClosed = false;
+                        this.GlassDoor1.body.position.x -= this.doorSpeed;
+                        this.GlassDoor2.body.position.x += this.doorSpeed;
+                    }else{
+                        this.isOpened = true;
+                        this.isOpening = false;
+                    }
+                }
+            }
+        },
+        close : function(){
+            if(this.GlassDoor1 != null && this.GlassDoor2 != null){
+                if(!this.isClosed){
+                    if(this.GlassDoor1.body.position.x < 0.5 && this.GlassDoor2.body.position.x > (this.width/2-0.5)){
+                        this.isClosing = true;
+                        this.isOpened = false;
+                        this.GlassDoor1.body.position.x += this.doorSpeed;
+                        this.GlassDoor2.body.position.x -= this.doorSpeed;
+                    }else{
+                        this.isClosed = true;
+                        this.isClosing = false;
+                    }
+                }
+            }
         }
     };
     window.door = door;
@@ -420,32 +451,7 @@
     };
     glassDoor.prototype = {
         init : function(){
-            var doorShap = new THREE.Shape();
-            doorShap.moveTo(0,0);
-            doorShap.lineTo(this.width,0);
-            doorShap.lineTo(this.width,this.height);
-            doorShap.lineTo(0,this.height);
-            doorShap.lineTo(0,0);
-
-            var frame = new THREE.Path();
-            frame.moveTo(this.FrameWidth,this.FrameWidth);
-            frame.lineTo(this.width-this.FrameWidth,this.FrameWidth);
-            frame.lineTo(this.width-this.FrameWidth,this.height-this.FrameWidth);
-            frame.lineTo(this.FrameWidth,this.height-this.FrameWidth);
-            frame.lineTo(this.FrameWidth,this.FrameWidth);
-            doorShap.holes.push(frame);
-
-            var extrudeSettings = {
-                amount: 1,
-                bevelEnabled: true,
-                bevelSegments: 1,
-                steps: 1,
-                bevelSize: 0,
-                bevelThickness: this.thickness};
-
-            var doorFrameGeometry = new THREE.ExtrudeGeometry(doorShap,extrudeSettings);
-            var doorFrameMaterial = new THREE.MeshBasicMaterial( { color: 0xFFFFFF ,side: THREE.DoubleSide,wireframe:false});
-            var door = new THREE.Mesh(doorFrameGeometry, doorFrameMaterial);
+            this.body.add(this.frame(1,1,1,1,0xFFFFFF));
 
             //玻璃
             var GlassMaterial = new THREE.MeshBasicMaterial( {
@@ -469,10 +475,53 @@
             var caution = new THREE.Mesh(cautionGeometry, cautionMaterial);
             caution.position.set(this.width/2,30,-0.2);
 
-            this.body.add(door);
             this.body.add(Glass);
             this.body.add(caution);
         }
     };
     window.glassDoor = glassDoor;
+
+    /**----------------------------------------------------------**/
+    /**                       通风管道对象                       **/
+    /**                   继承自objectFrame对象                  **/
+    /**----------------------------------------------------------**/
+    var airDuct = function(width,height){
+        objectFrame.call(this,width,height);
+        this.FrameWidth = 1;
+        this.init();
+    };
+    airDuct.prototype = {
+        init : function(){
+            var airDuctShape = new THREE.Shape();
+            airDuctShape.moveTo(0,0);
+            airDuctShape.lineTo(this.width,0);
+            airDuctShape.lineTo(this.width,this.height);
+            airDuctShape.lineTo(0,this.height);
+            airDuctShape.lineTo(0,0);
+
+            var frame = new THREE.Path();
+            frame.moveTo(this.FrameWidth,this.FrameWidth);
+            frame.lineTo(this.width-this.FrameWidth,this.FrameWidth);
+            frame.lineTo(this.width-this.FrameWidth,this.height-this.FrameWidth);
+            frame.lineTo(this.FrameWidth,this.height-this.FrameWidth);
+            frame.lineTo(this.FrameWidth,this.FrameWidth);
+            airDuctShape.holes.push(frame);
+
+            var extrudeSettings = {
+                amount: 1,
+                bevelEnabled: true,
+                bevelSegments: 1,
+                steps: 1,
+                bevelSize: 0,
+                bevelThickness: this.thickness};
+
+            var airDuctFrameGeometry = new THREE.ExtrudeGeometry(airDuctShape,extrudeSettings);
+            var airDuctFrameMaterial = new THREE.MeshBasicMaterial( { color: 0xFFFFFF ,side: THREE.DoubleSide,wireframe:false});
+            var airDuct = new THREE.Mesh(airDuctFrameGeometry, airDuctFrameMaterial);
+
+            this.body.add(airDuct)
+
+        }
+    };
+    window.airDuct = airDuct;
 })(window);
