@@ -488,38 +488,26 @@
     var airDuct = function(width,height){
         objectFrame.call(this,width,height);
         this.FrameWidth = 1;
+        this.bladeArray = new THREE.Group();
         this.init();
     };
     airDuct.prototype = {
         init : function(){
-            var airDuctShape = new THREE.Shape();
-            airDuctShape.moveTo(0,0);
-            airDuctShape.lineTo(this.width,0);
-            airDuctShape.lineTo(this.width,this.height);
-            airDuctShape.lineTo(0,this.height);
-            airDuctShape.lineTo(0,0);
+            this.body.add(this.frame(1,1,1,1,0xE4E4E4));
 
-            var frame = new THREE.Path();
-            frame.moveTo(this.FrameWidth,this.FrameWidth);
-            frame.lineTo(this.width-this.FrameWidth,this.FrameWidth);
-            frame.lineTo(this.width-this.FrameWidth,this.height-this.FrameWidth);
-            frame.lineTo(this.FrameWidth,this.height-this.FrameWidth);
-            frame.lineTo(this.FrameWidth,this.FrameWidth);
-            airDuctShape.holes.push(frame);
-
-            var extrudeSettings = {
-                amount: 1,
-                bevelEnabled: true,
-                bevelSegments: 1,
-                steps: 1,
-                bevelSize: 0,
-                bevelThickness: this.thickness};
-
-            var airDuctFrameGeometry = new THREE.ExtrudeGeometry(airDuctShape,extrudeSettings);
-            var airDuctFrameMaterial = new THREE.MeshBasicMaterial( { color: 0xFFFFFF ,side: THREE.DoubleSide,wireframe:false});
-            var airDuct = new THREE.Mesh(airDuctFrameGeometry, airDuctFrameMaterial);
-
-            this.body.add(airDuct)
+            for(var i=0;i<7;i++){
+                var bladeGeometry = new THREE.PlaneGeometry( this.width,2, 32 );
+                var bladeMaterial = new THREE.MeshBasicMaterial({color: 0xE4E4E4, side: THREE.DoubleSide,wireframe:false});
+                var blade = new THREE.Mesh(bladeGeometry, bladeMaterial );
+                blade.position.set(this.width/2,2.5+i*2.5,0);
+                this.bladeArray.add(blade);
+            }
+            this.body.add(this.bladeArray);
+        },
+        open : function(){
+            
+        },
+        close : function(){
 
         }
     };
