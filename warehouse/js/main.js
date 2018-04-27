@@ -92,7 +92,22 @@ window.onload = function(){
     /**                             通风口                       **/
     /**----------------------------------------------------------**/
     var airDuct_1 = new airDuct(60,20);
+    airDuct_1.body.position.set(200,75,wareHouseHeight/2);
     scene.add(airDuct_1.build());
+
+    var airDuct_2 = new airDuct(60,20);
+    airDuct_2.body.position.set(-280,75,wareHouseHeight/2);
+    scene.add(airDuct_2.build());
+
+    var airDuct_3 = new airDuct(60,20);
+    airDuct_3.body.position.set(wareHouseWidth/2,75,30);
+    airDuct_3.body.rotation.y = Math.PI/2;
+    scene.add(airDuct_3.build());
+
+    var airDuct_4 = new airDuct(60,20);
+    airDuct_4.body.position.set(-wareHouseWidth/2,75,30);
+    airDuct_4.body.rotation.y = Math.PI/2;
+    scene.add(airDuct_4.build());
 
 
     /**-----------------------------------------------------------**/

@@ -512,4 +512,31 @@
         }
     };
     window.airDuct = airDuct;
+
+
+    /**----------------------------------------------------------**/
+    /**                        货物架对象                        **/
+    /**                     由横梁和柱片组成                     **/
+    /**----------------------------------------------------------**/
+    var shelf = function(length,width,height){
+        this.body = new THREE.Group();
+        this.length = length;
+        this.width = width;
+        this.height = height;
+        this.crossBeam = new THREE.Group(); //横梁
+        this.Column = new THREE.Group();//柱片
+
+        this.init();
+    };
+    shelf.prototype = {
+        init : function(){
+            //横梁
+            this.body.add(this.crossBeam);
+            this.body.add(this.crossBeam);
+        },
+        build : function(){
+            return this.body;
+        }
+    };
+    window.shelf = shelf;
 })(window);
