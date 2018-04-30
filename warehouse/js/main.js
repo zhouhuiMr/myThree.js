@@ -10,30 +10,57 @@ window.onload = function(){
         arr_wall = new Array(), //墙面的数组
         myroof = null; //屋顶
 
+    var isUseShadow = false; // 是否使用阴影
+
     var scene = new THREE.Scene(); // 场景
     scene.background = new THREE.Color( 0x000000);
 
     var camera = new THREE.PerspectiveCamera(75, SceneWidth / SceneHeight, 1, 1500); //相机的设置
-    camera.position.set( 0, 10, 0);
+    camera.position.set( 0, 20, 0);
+
 
     //渲染的方式
-    var renderer = new THREE.WebGLRenderer();
-    renderer.setPixelRatio( window.devicePixelRatio );
+    var renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio( window.devicePixelRatio);
     renderer.setSize(SceneWidth, SceneHeight);
+    if(isUseShadow){
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFShadowMap;
+    }
     document.body.appendChild( renderer.domElement);
 
-    /**-----------------------------------------------------------**/
-    /**                                                          **/
-    /**                         地面                             **/
-    /**                                                          **/
+    /**----------------------------------------------------------**/
+    /**                          灯光                             **/
+    /**----------------------------------------------------------**/
+    var ambientLight = new THREE.AmbientLight( 0xffffff,0.9);
+    scene.add(ambientLight);
+
+    var spotLight = new THREE.SpotLight( 0xffffff);
+    spotLight.position.set( 0, 700, 0 );
+
+    spotLight.castShadow = true;
+
+    spotLight.shadow.mapSize.width = 1024;
+    spotLight.shadow.mapSize.height = 1024;
+
+    spotLight.shadow.camera.near = 500;
+    spotLight.shadow.camera.far = 4000;
+    spotLight.shadow.camera.fov = 30;
+
+
+    var spotLightHelper = new THREE.SpotLightHelper( spotLight );
+    scene.add( spotLightHelper );
+
+    scene.add( spotLight );
+
+    /**----------------------------------------------------------**/
+    /**                          地面                             **/
     /**----------------------------------------------------------**/
     myfloor = new floor(wareHouseWidth*2,wareHouseHeight*2);
     scene.add(myfloor.bulid());
 
     /**----------------------------------------------------------**/
-    /**                                                          **/
-    /**                     四面墙 前、后、左、右                **/
-    /**                                                          **/
+    /**                     四面墙 前、后、左、右                    **/
     /**----------------------------------------------------------**/
     var wall_1 = new wall(wareHouseWidth,wallHeight);
     wall_1.additional = function(rectangle){
@@ -109,11 +136,37 @@ window.onload = function(){
     airDuct_4.body.rotation.y = Math.PI/2;
     scene.add(airDuct_4.build());
 
+    /**----------------------------------------------------------**/
+    /**                           柱子                            **/
+    /**----------------------------------------------------------**/
+    var pillarWidth = 10,
+        pillarHeight = 10;
+    var pillar_1 = new pillar(pillarWidth,wallHeight,pillarHeight);
+    pillar_1.body.position.set(wareHouseWidth/2-pillarWidth/2,wallHeight/2,-wareHouseHeight/2+pillarHeight/2);
+    scene.add(pillar_1.build());
 
-    /**-----------------------------------------------------------**/
-    /**                                                          **/
-    /**                         屋顶                             **/
-    /**                                                          **/
+    var pillar_2 = new pillar(pillarWidth,wallHeight,pillarHeight);
+    pillar_2.body.position.set(-wareHouseWidth/2+pillarWidth/2,wallHeight/2,-wareHouseHeight/2+pillarHeight/2);
+    scene.add(pillar_2.build());
+
+    var pillar_3 = new pillar(pillarWidth,wallHeight,pillarHeight);
+    pillar_3.body.position.set(-wareHouseWidth/2+pillarWidth/2,wallHeight/2,wareHouseHeight/2-pillarHeight/2);
+    scene.add(pillar_3.build());
+
+    var pillar_4 = new pillar(pillarWidth,wallHeight,pillarHeight);
+    pillar_4.body.position.set(wareHouseWidth/2-pillarWidth/2,wallHeight/2,wareHouseHeight/2-pillarHeight/2);
+    scene.add(pillar_4.build());
+
+    /**----------------------------------------------------------**/
+    /**                           货架                            **/
+    /**----------------------------------------------------------**/
+
+    var myshelf = new shelf(10,10,30);
+    myshelf.body.position.set(0,20,0);
+    scene.add(myshelf.build());
+
+    /**----------------------------------------------------------**/
+    /**                           屋顶                            **/
     /**----------------------------------------------------------**/
     // myroof = new roof(wareHouseWidth,wareHouseHeight,wallHeight);
         // scene.add(myroof.build());
