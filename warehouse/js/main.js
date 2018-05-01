@@ -161,15 +161,15 @@ window.onload = function(){
     /**                           货架                            **/
     /**----------------------------------------------------------**/
 
-    var myshelf = new shelf(10,10,30);
-    myshelf.body.position.set(0,20,0);
+    var myshelf = new shelf(15,10,30);
+    myshelf.body.position.set(0,0,0);
     scene.add(myshelf.build());
 
     /**----------------------------------------------------------**/
     /**                           屋顶                            **/
     /**----------------------------------------------------------**/
     // myroof = new roof(wareHouseWidth,wareHouseHeight,wallHeight);
-        // scene.add(myroof.build());
+    // scene.add(myroof.build());
 
     var controls = new controller(scene,camera);
 

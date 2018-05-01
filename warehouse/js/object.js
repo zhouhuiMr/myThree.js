@@ -173,12 +173,12 @@
             Shap.holes.push(Path);
 
             var extrudeSettings = {
-                amount: 1,
+                amount: this.thickness,
                 bevelEnabled: true,
                 bevelSegments: 1,
                 steps: 1,
                 bevelSize: 0,
-                bevelThickness: this.thickness};
+                bevelThickness: 1};
 
             var Geometry = new THREE.ExtrudeGeometry(Shap,extrudeSettings);
             var Material = new THREE.MeshLambertMaterial({
@@ -195,7 +195,7 @@
         };
     };
     objectFrame.prototype = {
-        init : function(){},
+        init : function(){}
     };
 
     /**----------------------------------------------------------**/
@@ -211,7 +211,7 @@
             var floorGeometry = new THREE.PlaneGeometry( this.width, this.height, 100, 100 );
             floorGeometry.rotateX( - Math.PI / 2 );
             var floorMaterial = new THREE.MeshLambertMaterial({
-                color: 0x4682B4,
+                color: 0x4682B4
             });
             // var textureLoader = new THREE.TextureLoader();
             // textureLoader.load( "resources/floor.jpg", function( map ) {
@@ -254,7 +254,7 @@
                 this.additional(rectangle);
             }
 
-            var extrudeSettings = { amount: 1, bevelEnabled: true, bevelSegments: 1, steps: 10, bevelSize: 1, bevelThickness: this.thickness};
+            var extrudeSettings = { amount: this.thickness, bevelEnabled: true, bevelSegments: 1, steps: 1, bevelSize: 1, bevelThickness: 1};
             var geometry = new THREE.ExtrudeGeometry(rectangle,extrudeSettings);
             var material = new THREE.MeshLambertMaterial
             ({
@@ -553,6 +553,129 @@
     };
     window.airDuct = airDuct;
 
+    /**----------------------------------------------------------**/
+    /**                        柱片的支撑                        **/
+    /**----------------------------------------------------------**/
+    var ColumnOfProp = function(height){
+        this.body = new THREE.Group();
+        this.height = height;
+
+        this.build = function(){
+            return this.body;
+        };
+        this.init();
+    };
+    ColumnOfProp.prototype = {
+        init : function(){
+            var ColumnWidth = 2,
+                ColumnHeight = 1,
+                ColumnDepth = 0.3;
+
+            var propMaterial = new THREE.MeshLambertMaterial({
+                color: 0x205488,
+                wireframe : false});
+
+            var propShape = new THREE.Shape();
+            propShape.moveTo(0,0);
+            propShape.lineTo(ColumnHeight,0);
+            propShape.lineTo(ColumnHeight,this.height);
+            propShape.lineTo(0,this.height);
+            propShape.lineTo(0,0);
+
+            var holeR = 0.2,
+                holeY = 3.5;
+            while(holeY < (this.height-4)){
+                var holePath = new THREE.Path();
+                holePath.moveTo( 0, 0 );
+                holePath.absarc( 0.5,holeY, holeR, 0, Math.PI*2, true);
+                propShape.holes.push( holePath );
+                holeY += 1;
+            }
+
+            var propExtrudeSettings = {
+                steps: 1,
+                amount: ColumnDepth,
+                bevelEnabled: true,
+                bevelThickness: 1,
+                bevelSize: 0,
+                bevelSegments: 0
+            };
+
+            var propGeometry = new THREE.ExtrudeBufferGeometry(propShape, propExtrudeSettings);
+
+            var geometry = new THREE.BoxBufferGeometry(ColumnDepth,this.height,ColumnWidth);
+            var prop1 = new THREE.Mesh(geometry, propMaterial);
+            prop1.position.set(ColumnDepth/2,this.height/2,0);
+            prop1.castShadow = true;
+            prop1.receiveShadow = true;
+
+            var prop2 = new THREE.Mesh(propGeometry, propMaterial);
+            prop2.position.set(0,0,ColumnWidth/2-ColumnDepth);
+            prop2.castShadow = true;
+            prop2.receiveShadow = true;
+
+            var prop3 = new THREE.Mesh(propGeometry, propMaterial);
+            prop3.position.set(0,0,-ColumnWidth/2);
+            prop3.castShadow = true;
+            prop3.receiveShadow = true;
+
+            var pedestalGeometry = new THREE.BoxBufferGeometry(ColumnHeight+0.6,0.2,ColumnWidth+0.6);
+            var pedestal = new THREE.Mesh(pedestalGeometry, propMaterial);
+            pedestal.position.set(ColumnHeight/2,0,0);
+
+            this.body.add(prop1);
+            this.body.add(prop2);
+            this.body.add(prop3);
+            this.body.add(pedestal);
+        }
+    };
+
+    /**----------------------------------------------------------**/
+    /**                            柱片                          **/
+    /**----------------------------------------------------------**/
+    var Columns = function(width,height){
+        this.body = new THREE.Group();
+        this.width = width;
+        this.height = height;
+
+        this.build = function(){
+            return this.body;
+        };
+        this.init();
+
+    };
+    Columns.prototype = {
+        init : function(){
+            var ColumnsMaterial = new THREE.MeshLambertMaterial({
+                color: 0x205488,
+                wireframe : false});
+
+            var prop1 = new ColumnOfProp(this.height);
+            prop1.body.position.set(-this.width/2,0,0);
+
+            var prop2 = new ColumnOfProp(this.height);
+            prop2.body.rotation.y = Math.PI;
+            prop2.body.position.set(this.width/2,0,0);
+
+            var beamGeometry = new THREE.BoxBufferGeometry(this.width,0.5,1);
+            var beam1 = new THREE.Mesh(beamGeometry, ColumnsMaterial);
+            beam1.position.set(0,3,0);
+            beam1.castShadow = true;
+            beam1.receiveShadow = true;
+
+            var beam2 = new THREE.Mesh(beamGeometry, ColumnsMaterial);
+            beam2.position.set(0,this.height-3,0);
+            beam2.castShadow = true;
+            beam2.receiveShadow = true;
+
+            //斜着的横梁
+
+            this.body.add(prop1.build());
+            this.body.add(prop2.build());
+            this.body.add(beam1);
+            this.body.add(beam2);
+        }
+    };
 
     /**----------------------------------------------------------**/
     /**                        货物架对象                          **/
@@ -571,8 +694,8 @@
     shelf.prototype = {
         init : function(){
             //柱片
-            var prop = new ColumnOfProp(this.height);
-            this.Columns.add(prop.build());
+            var columns = new Columns(this.depth,this.height);
+            this.Columns.add(columns.build());
 
 
             this.body.add(this.CrossBeams);
@@ -583,69 +706,4 @@
         }
     };
     window.shelf = shelf;
-
-    var ColumnOfProp = function(height){
-        this.body = new THREE.Group();
-        this.height = height;
-
-        this.build = function(){
-            return this.body;
-        };
-        this.init();
-    };
-    ColumnOfProp.prototype = {
-        init : function(){
-            var ColumnWirdth = 3,
-                ColumnHeight = 2,
-                ColumnDepth = 0.6;
-
-            var propMaterial = new THREE.MeshLambertMaterial({
-                color: 0x042649,
-                side: THREE.DoubleSide,
-                wireframe : false});
-
-            var propShape = new THREE.Shape();
-            propShape.moveTo(0,0);
-            propShape.lineTo(ColumnHeight,0);
-            propShape.lineTo(ColumnHeight,this.height);
-            propShape.lineTo(0,this.height);
-            propShape.lineTo(0,0);
-
-            var holePath = new THREE.Path();
-            holePath.moveTo( 0, 0 );
-            holePath.absarc( 1, 1.5, 0.5, 0, Math.PI*2, true);
-            propShape.holes.push( holePath );
-
-            var propExtrudeSettings = {
-                steps: 1,
-                amount: 1,
-                bevelEnabled: true,
-                bevelThickness: ColumnDepth/2,
-                bevelSize: 0,
-                bevelSegments: 0
-            };
-
-            var propGeometry = new THREE.ExtrudeBufferGeometry(propShape, propExtrudeSettings);
-
-            var geometry = new THREE.BoxBufferGeometry(ColumnDepth,this.height,ColumnWirdth);
-            var prop1 = new THREE.Mesh(geometry, propMaterial);
-            prop1.position.set(ColumnDepth/2,this.height/2,0);
-            prop1.castShadow = true;
-            prop1.receiveShadow = true;
-
-            var prop2 = new THREE.Mesh(propGeometry, propMaterial);
-            prop2.position.set(0,0,ColumnHeight/2-ColumnDepth/2);
-            prop2.castShadow = true;
-            prop2.receiveShadow = true;
-
-            var prop3 = new THREE.Mesh(propGeometry, propMaterial);
-            prop3.position.set(0,0,-ColumnHeight+ColumnDepth/2);
-            prop3.castShadow = true;
-            prop3.receiveShadow = true;
-
-            this.body.add(prop1);
-            this.body.add(prop2);
-            this.body.add(prop3);
-        }
-    };
 })(window);
