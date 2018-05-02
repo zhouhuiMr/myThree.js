@@ -2,8 +2,8 @@ window.onload = function(){
     var SceneWidth = document.body.offsetWidth,
         SceneHeight = document.body.offsetHeight;
 
-    var wareHouseWidth = 800,  //仓库长
-        wareHouseHeight = 600, //仓库宽
+    var wareHouseWidth = 600,  //仓库长
+        wareHouseHeight = 400, //仓库宽
         wallHeight = 100;      //仓库墙高
 
     var myfloor = null, //地面
@@ -35,7 +35,7 @@ window.onload = function(){
     var ambientLight = new THREE.AmbientLight( 0xffffff,0.9);
     scene.add(ambientLight);
 
-    var spotLight = new THREE.SpotLight( 0xffffff);
+    var spotLight = new THREE.SpotLight( 0xffffff,0.9);
     spotLight.position.set( 0, 700, 0 );
 
     spotLight.castShadow = true;
@@ -44,20 +44,20 @@ window.onload = function(){
     spotLight.shadow.mapSize.height = 1024;
 
     spotLight.shadow.camera.near = 500;
-    spotLight.shadow.camera.far = 4000;
+    spotLight.shadow.camera.far = 1000;
     spotLight.shadow.camera.fov = 30;
-
-
-    var spotLightHelper = new THREE.SpotLightHelper( spotLight );
-    scene.add( spotLightHelper );
-
     scene.add( spotLight );
+    //
+    // var spotLightHelper = new THREE.SpotLightHelper( spotLight );
+    // scene.add( spotLightHelper );
 
+
+    var warHouse = new THREE.Group();
     /**----------------------------------------------------------**/
     /**                          地面                             **/
     /**----------------------------------------------------------**/
     myfloor = new floor(wareHouseWidth*2,wareHouseHeight*2);
-    scene.add(myfloor.bulid());
+    warHouse.add(myfloor.bulid());
 
     /**----------------------------------------------------------**/
     /**                     四面墙 前、后、左、右                    **/
@@ -67,16 +67,16 @@ window.onload = function(){
         new frame(200,100,wareHouseWidth/2,0).build(rectangle);
         new frame(120,60,100,20).build(rectangle);
     };
-    scene.add(wall_1.build());
+    warHouse.add(wall_1.build());
     wall_1.wall.position.set(-wareHouseWidth/2,0,-wareHouseHeight/2);
     arr_wall.push(wall_1);
 
     var wall_2 = new wall(wareHouseWidth,wallHeight);
     wall_2.additional = function(rectangle){
-        new frame(60,20,600,75).build(rectangle);
-        new frame(60,20,120,75).build(rectangle);
+        new frame(60,20,wareHouseWidth/3,75).build(rectangle);
+        new frame(60,20,2*wareHouseWidth/3,75).build(rectangle);
     };
-    scene.add(wall_2.build());
+    warHouse.add(wall_2.build());
     wall_2.wall.position.set(-wareHouseWidth/2,0,wareHouseHeight/2);
     arr_wall.push(wall_2);
 
@@ -84,19 +84,20 @@ window.onload = function(){
     wall_3.additional = function(rectangle){
         new frame(60,20,wareHouseHeight/2-30,75).build(rectangle);
     };
-    scene.add(wall_3.build());
+    warHouse.add(wall_3.build());
     wall_3.wall.rotation.y = Math.PI/2;
     wall_3.wall.position.set(wareHouseWidth/2,0,wareHouseHeight/2);
     arr_wall.push(wall_3);
 
     var wall_4 = new wall(wareHouseHeight,wallHeight);
-    wall_4.additional = function(rectangle){
+    warHouse.additional = function(rectangle){
         new frame(60,20,wareHouseHeight/2-30,75).build(rectangle);
     };
-    scene.add(wall_4.build());
+    warHouse.add(wall_4.build());
     wall_4.wall.rotation.y = Math.PI/2;
     wall_4.wall.position.set(-wareHouseWidth/2,0,wareHouseHeight/2);
     arr_wall.push(wall_4);
+    scene.add(warHouse);
 
     // var light = new THREE.PointLight( 0xffffff, 1 );
     // camera.add( light );
@@ -119,11 +120,11 @@ window.onload = function(){
     /**                             通风口                       **/
     /**----------------------------------------------------------**/
     var airDuct_1 = new airDuct(60,20);
-    airDuct_1.body.position.set(200,75,wareHouseHeight/2);
+    airDuct_1.body.position.set(wareHouseWidth/6,75,wareHouseHeight/2);
     scene.add(airDuct_1.build());
 
     var airDuct_2 = new airDuct(60,20);
-    airDuct_2.body.position.set(-280,75,wareHouseHeight/2);
+    airDuct_2.body.position.set(-wareHouseWidth/6,75,wareHouseHeight/2);
     scene.add(airDuct_2.build());
 
     var airDuct_3 = new airDuct(60,20);
@@ -161,7 +162,7 @@ window.onload = function(){
     /**                           货架                            **/
     /**----------------------------------------------------------**/
 
-    var myshelf = new shelf(15,10,30);
+    var myshelf = new shelf(90,70,15);
     myshelf.body.position.set(0,0,0);
     scene.add(myshelf.build());
 
@@ -170,6 +171,9 @@ window.onload = function(){
     /**----------------------------------------------------------**/
     // myroof = new roof(wareHouseWidth,wareHouseHeight,wallHeight);
     // scene.add(myroof.build());
+
+    var axesHelper = new THREE.AxesHelper(wareHouseWidth);
+    scene.add( axesHelper );
 
     var controls = new controller(scene,camera);
 

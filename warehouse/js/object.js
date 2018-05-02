@@ -186,8 +186,6 @@
                 wireframe:false
             });
             var Frame = new THREE.Mesh(Geometry, Material);
-            Frame.receiveShadow = true;
-            Frame.castShadow = true;
             return Frame;
         };
         this.build = function(){
@@ -208,10 +206,11 @@
     };
     floor.prototype = {
         bulid : function(){
-            var floorGeometry = new THREE.PlaneGeometry( this.width, this.height, 100, 100 );
+            var floorGeometry = new THREE.BoxBufferGeometry( this.width,this.height,0.1,6,4);
             floorGeometry.rotateX( - Math.PI / 2 );
-            var floorMaterial = new THREE.MeshLambertMaterial({
-                color: 0x4682B4
+            var floorMaterial = new THREE.MeshPhongMaterial({
+                color : 0x656b72,
+                wireframe : false
             });
             // var textureLoader = new THREE.TextureLoader();
             // textureLoader.load( "resources/floor.jpg", function( map ) {
@@ -224,7 +223,6 @@
             // } );
             this.floor = new THREE.Mesh( floorGeometry, floorMaterial );
             this.floor.receiveShadow = true;
-            this.floor.castShadow = true;
             return this.floor;
         }
     };
@@ -254,12 +252,14 @@
                 this.additional(rectangle);
             }
 
-            var extrudeSettings = { amount: this.thickness, bevelEnabled: true, bevelSegments: 1, steps: 1, bevelSize: 1, bevelThickness: 1};
+            var extrudeSettings = { amount: 4, bevelEnabled: false, bevelSegments: 1, steps: 1, bevelSize: 0, bevelThickness: 1};
             var geometry = new THREE.ExtrudeGeometry(rectangle,extrudeSettings);
             var material = new THREE.MeshLambertMaterial
             ({
-                color: 0xBDB76B ,
-                wireframe:false});
+                color: 0xBDB76B,
+                side : THREE.DoubleSide,
+                wireframe:false
+            });
             var mesh = new THREE.Mesh(geometry, material);
             mesh.castShadow = true;
             this.wall.add(mesh);
@@ -286,11 +286,11 @@
             var pillarGeometry = new THREE.BoxGeometry(this.width,this.height,this.depth);
             var pillarMaterial = new THREE.MeshLambertMaterial({
                 color: 0xBDB76B,//BDB76B
-                wireframe:false});
+                side : THREE.DoubleSide,
+                wireframe:false
+            });
             var pillar = new THREE.Mesh(pillarGeometry, pillarMaterial);
-            pillar.receiveShadow = true;
             pillar.castShadow = true;
-
             this.body.add(pillar);
         }
     };
@@ -319,7 +319,6 @@
             triangle.lineTo(this.width/2+10,0+this.top);
             triangle.lineTo(0,25+this.top+5);
             triangle.lineTo(-(this.width/2+10),0+this.top);
-
             var extrudeSettings = { amount: 1, bevelEnabled: true, bevelSegments: 1, steps: 10, bevelSize: 2, bevelThickness: 310 };
             var geometry = new THREE.ExtrudeGeometry(triangle,extrudeSettings);
             var material = new THREE.MeshBasicMaterial( { color: 0xdddedf ,side: THREE.DoubleSide,wireframe:false});
@@ -496,7 +495,6 @@
             var GlassGeometry = new THREE.BoxBufferGeometry(this.width,this.height,0.5);
             var Glass = new THREE.Mesh(GlassGeometry, GlassMaterial);
             Glass.position.set(this.width/2,this.height/2,0);
-
             //警示
             var cautionMaterial = new THREE.MeshBasicMaterial( {
                 color: 0xedfe16,
@@ -538,8 +536,6 @@
                 var blade = new THREE.Mesh(bladeGeometry, bladeMaterial );
                 blade.position.set(this.width/2,2.5+i*2.5,0);
                 blade.rotation.x = Math.PI/6;
-                blade.receiveShadow = true;
-                blade.castShadow = true;
                 this.bladeArray.add(blade);
             }
             this.body.add(this.bladeArray);
@@ -573,6 +569,7 @@
 
             var propMaterial = new THREE.MeshLambertMaterial({
                 color: 0x205488,
+                side : THREE.DoubleSide,
                 wireframe : false});
 
             var propShape = new THREE.Shape();
@@ -603,23 +600,17 @@
 
             var propGeometry = new THREE.ExtrudeBufferGeometry(propShape, propExtrudeSettings);
 
-            var geometry = new THREE.BoxBufferGeometry(ColumnDepth,this.height,ColumnWidth);
+            var geometry = new THREE.BoxBufferGeometry(ColumnDepth,this.height,ColumnWidth,1,1,1);
             var prop1 = new THREE.Mesh(geometry, propMaterial);
             prop1.position.set(ColumnDepth/2,this.height/2,0);
-            prop1.castShadow = true;
-            prop1.receiveShadow = true;
 
             var prop2 = new THREE.Mesh(propGeometry, propMaterial);
             prop2.position.set(0,0,ColumnWidth/2-ColumnDepth);
-            prop2.castShadow = true;
-            prop2.receiveShadow = true;
 
             var prop3 = new THREE.Mesh(propGeometry, propMaterial);
             prop3.position.set(0,0,-ColumnWidth/2);
-            prop3.castShadow = true;
-            prop3.receiveShadow = true;
 
-            var pedestalGeometry = new THREE.BoxBufferGeometry(ColumnHeight+0.6,0.2,ColumnWidth+0.6);
+            var pedestalGeometry = new THREE.BoxBufferGeometry(ColumnHeight+0.6,0.2,ColumnWidth+0.6,1,1,1);
             var pedestal = new THREE.Mesh(pedestalGeometry, propMaterial);
             pedestal.position.set(ColumnHeight/2,0,0);
 
@@ -661,15 +652,23 @@
             var beam1 = new THREE.Mesh(beamGeometry, ColumnsMaterial);
             beam1.position.set(0,3,0);
             beam1.castShadow = true;
-            beam1.receiveShadow = true;
 
             var beam2 = new THREE.Mesh(beamGeometry, ColumnsMaterial);
             beam2.position.set(0,this.height-3,0);
             beam2.castShadow = true;
-            beam2.receiveShadow = true;
 
-            //斜着的横梁
-
+            //斜着的横梁(3根)
+            var W = this.width,
+                H = (this.height-10)/3;
+            var L = Math.sqrt(W*W+H*H);
+            var ANGLE = Math.atan(H/W)+0.02;
+            for(var i=0;i<3;i++){
+                var obliqueBeamGeometry = new THREE.BoxBufferGeometry(L,0.5,1,1,1,1);
+                var obliqueBeam = new THREE.Mesh(obliqueBeamGeometry, ColumnsMaterial);
+                obliqueBeam.rotation.z = Math.pow(-1,i)*ANGLE;
+                obliqueBeam.position.set(0,H*i+H/2+4,0);
+                this.body.add(obliqueBeam);
+            }
             this.body.add(prop1.build());
             this.body.add(prop2.build());
             this.body.add(beam1);
@@ -681,11 +680,11 @@
     /**                        货物架对象                          **/
     /**                     由横梁和柱片组成                        **/
     /**----------------------------------------------------------**/
-    var shelf = function(depth,width,height){
+    var shelf = function(width,height,depth){
         this.body = new THREE.Group();
-        this.depth = depth;
         this.width = width;
         this.height = height;
+        this.depth = depth;
         this.CrossBeams = new THREE.Group(); //横梁
         this.Columns = new THREE.Group();//柱片
 
@@ -694,8 +693,52 @@
     shelf.prototype = {
         init : function(){
             //柱片
-            var columns = new Columns(this.depth,this.height);
-            this.Columns.add(columns.build());
+            var column1 = new Columns(this.depth,this.height);
+            column1.body.rotation.y = Math.PI/2;
+            column1.body.position.set(this.width/2,0,0);
+            var column2 = new Columns(this.depth,this.height);
+            column2.body.rotation.y = Math.PI/2;
+            column2.body.position.set(-this.width/2,0,0);
+            this.Columns.add(column1.build());
+            this.Columns.add(column2.build());
+
+            //底部支撑横梁材质
+            var ColumnsMaterial = new THREE.MeshLambertMaterial({
+                color: 0x205488,
+                wireframe : false
+            });
+            //螺丝的材质
+            var ScrewMaterial = new THREE.MeshLambertMaterial({
+                color: 0xFFFFFF,
+                side : THREE.DoubleSide,
+                wireframe : false
+            });
+
+            //底部支撑横梁
+            var bottomBeamGeometry = new THREE.BoxBufferGeometry(this.width+1.6,2,0.3);
+            //底部固定的螺丝
+            var bottomScrewGeometry = new THREE.CircleGeometry(0.6,5);
+
+            var bottomBeam1 = new THREE.Mesh(bottomBeamGeometry, ColumnsMaterial);
+            bottomBeam1.position.set(0,3,this.depth/2);
+            this.Columns.add(bottomBeam1);
+            var bottomBeam2 = new THREE.Mesh(bottomBeamGeometry, ColumnsMaterial);
+            bottomBeam2.position.set(0,3,-this.depth/2);
+            this.Columns.add(bottomBeam2);
+
+            var bottomScrew1 = new THREE.Mesh(bottomScrewGeometry, ScrewMaterial);
+            bottomScrew1.position.set(this.width/2-0.3,3,-this.depth/2-0.2);
+            var bottomScrew2 = new THREE.Mesh(bottomScrewGeometry, ScrewMaterial);
+            bottomScrew2.position.set(-this.width/2+0.3,3,-this.depth/2-0.2);
+            var bottomScrew3 = new THREE.Mesh(bottomScrewGeometry, ScrewMaterial);
+            bottomScrew3.position.set(this.width/2-0.3,3,this.depth/2+0.2);
+            var bottomScrew4 = new THREE.Mesh(bottomScrewGeometry, ScrewMaterial);
+            bottomScrew4.position.set(-this.width/2+0.3,3,this.depth/2+0.2);
+
+            this.Columns.add(bottomScrew1);
+            this.Columns.add(bottomScrew2);
+            this.Columns.add(bottomScrew3);
+            this.Columns.add(bottomScrew4);
 
 
             this.body.add(this.CrossBeams);
