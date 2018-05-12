@@ -40,7 +40,7 @@ window.onload = function(){
     var ambientLight = new THREE.AmbientLight( 0xffffff,0.9);
     scene.add(ambientLight);
 
-    var spotLight = new THREE.SpotLight( 0xffffff,0.9);
+    var spotLight = new THREE.SpotLight( 0xffffff,1);
     spotLight.position.set( 0, 700, 0 );
 
     spotLight.castShadow = true;
@@ -178,7 +178,7 @@ window.onload = function(){
     /**                           货架                            **/
     /**----------------------------------------------------------**/
 
-    // var myshelf = new shelf(90,70,15);
+    // var myshelf = new shelf(30,40,5);
     // myshelf.body.position.set(0,0,0);
     // scene.add(myshelf.build());
 

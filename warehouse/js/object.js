@@ -689,345 +689,6 @@
     window.oneSashedDoor = oneSashedDoor;
 
     /**----------------------------------------------------------**/
-    /**                      带有边框物体的父类                  **/
-    /**----------------------------------------------------------**/
-    var objectFrame = function(width,height){
-        this.body = new THREE.Group();
-        this.width = width;
-        this.height = height;
-        this.thickness = 1;
-        this.FrameWidth = 1;
-        /**
-         * leftWidth   左侧边框的宽度
-         * topWidth    顶部边框的宽度
-         * rightWidth  右侧边框的宽度
-         * bottomWidth 底部边框的宽度
-         * color       边框的颜色
-         * */
-        this.frame = function(leftWidth,topWidth,rightWidth,bottomWidth,color){
-            var Shap = new THREE.Shape();
-            Shap.moveTo(0,0);
-            Shap.lineTo(this.width,0);
-            Shap.lineTo(this.width,this.height);
-            Shap.lineTo(0,this.height);
-            Shap.lineTo(0,0);
-
-            var Path = new THREE.Path();
-            Path.moveTo(leftWidth,bottomWidth);
-            Path.lineTo(this.width-rightWidth,bottomWidth);
-            Path.lineTo(this.width-rightWidth,this.height-topWidth);
-            Path.lineTo(leftWidth,this.height-topWidth);
-            Path.lineTo(leftWidth,bottomWidth);
-            Shap.holes.push(Path);
-
-            var extrudeSettings = {
-                amount: this.thickness,
-                bevelEnabled: true,
-                bevelSegments: 1,
-                steps: 1,
-                bevelSize: 0,
-                bevelThickness: 1};
-
-            var Geometry = new THREE.ExtrudeGeometry(Shap,extrudeSettings);
-            var Material = new THREE.MeshLambertMaterial({
-                color: color ,
-                wireframe:false
-            });
-            var Frame = new THREE.Mesh(Geometry, Material);
-            return Frame;
-        };
-        this.build = function(){
-            return this.body;
-        };
-    };
-    objectFrame.prototype = {
-        init : function(){}
-    };
-
-
-
-    /**----------------------------------------------------------**/
-    /**                         墙体的柱子                         **/
-    /**----------------------------------------------------------**/
-    var pillar = function(width,height,depth){
-        this.width = width;
-        this.height = height;
-        this.depth = depth;
-        this.body = new THREE.Group();
-        this.build = function(){
-            return this.body;
-        };
-        this.init();
-    };
-    pillar.prototype = {
-        init : function(){
-            var pillarGeometry = new THREE.BoxGeometry(this.width,this.height,this.depth);
-            var pillarMaterial = new THREE.MeshLambertMaterial({
-                color: 0xBDB76B,//BDB76B
-                side : THREE.DoubleSide,
-                wireframe:false
-            });
-            var pillar = new THREE.Mesh(pillarGeometry, pillarMaterial);
-            pillar.castShadow = true;
-            this.body.add(pillar);
-        }
-    };
-    window.pillar = pillar;
-
-    /**----------------------------------------------------------**/
-    /**                         屋顶对象                           **/
-    /**----------------------------------------------------------**/
-    var roof = function(width,height,top){
-        this.roof = null;
-        this.width = width;
-        this.height = height;
-        this.top = top;
-
-        this.init();
-    };
-    roof.prototype = {
-        init : function(){
-
-        },
-        build : function(){
-            var triangle = new THREE.Shape();
-            triangle.moveTo(-(this.width/2+5),0+this.top);
-            triangle.lineTo(0,25+this.top);
-            triangle.lineTo(this.width/2+5,0+this.top);
-            triangle.lineTo(this.width/2+10,0+this.top);
-            triangle.lineTo(0,25+this.top+5);
-            triangle.lineTo(-(this.width/2+10),0+this.top);
-            var extrudeSettings = { amount: 1, bevelEnabled: true, bevelSegments: 1, steps: 10, bevelSize: 2, bevelThickness: 310 };
-            var geometry = new THREE.ExtrudeGeometry(triangle,extrudeSettings);
-            var material = new THREE.MeshBasicMaterial( { color: 0xdddedf ,side: THREE.DoubleSide,wireframe:false});
-            this.roof  = new THREE.Mesh( geometry, material);
-            // this.roof.scale.set(1,1,310)
-            return this.roof;
-        }
-    };
-    window.roof = roof;
-
-    /**----------------------------------------------------------**/
-    /**                         在墙面形成窗体                      **/
-    /**----------------------------------------------------------**/
-    var frame = function(width,height,x,y){
-        this.win = frame;
-        this.width = width;
-        this.height = height;
-        this.x = x;
-        this.y = y;
-    };
-    frame.prototype = {
-        build : function(shape){
-            this.frame = new THREE.Path();
-            this.frame.moveTo(this.x,this.y);
-            this.frame.lineTo(this.x + this.width,this.y);
-            this.frame.lineTo(this.x + this.width,this.y+this.height);
-            this.frame.lineTo(this.x,this.y+this.height);
-            this.frame.lineTo(this.x,this.y);
-            shape.holes.push(this.frame);
-            return this.frame;
-        }
-    };
-    window.frame = frame;
-
-    /**----------------------------------------------------------**/
-    /**                           窗户对象                         **/
-    /**                  继承自objectFrame对象                     **/
-    /**----------------------------------------------------------**/
-    var mywindow = function(width,height){
-        objectFrame.call(this,width,height);
-        this.removableGlassBody = null;
-        this.init()
-    };
-    mywindow.prototype = {
-        init : function(){
-            this.body.add(this.frame(2,2,2,2,0xE4E4E4));
-
-            //固定的玻璃\
-            var glassWidth = (this.width-this.FrameWidth*2)/2,
-                glassHeight = this.height-this.FrameWidth*2;
-            var GlassMaterial = new THREE.MeshPhongMaterial( {
-                color: 0xffffff,
-                transparent:true,
-                opacity: 0.5,
-                side: THREE.DoubleSide,
-                wireframe:false});
-
-            var fixedGlassGeometry = new THREE.BoxBufferGeometry(glassWidth,glassHeight,0.5);
-            var fixedGlass = new THREE.Mesh( fixedGlassGeometry, GlassMaterial);
-            fixedGlass.position.set(glassWidth/2,glassHeight/2,-0.5);
-            //可移动的玻璃
-            this.removableGlassBody = new THREE.Group();
-            var removableGlassGeometry = new THREE.BoxBufferGeometry(glassWidth,glassHeight,1);
-            var removableGlass = new THREE.Mesh( removableGlassGeometry, GlassMaterial);
-            removableGlass.position.set(0,0,0);
-            this.removableGlassBody.add(removableGlass);
-            //把手
-            var winHandleGeometry = new THREE.BoxBufferGeometry(1,3,1);
-            var winHandleMaterial = new THREE.MeshLambertMaterial({
-                color: 0xE4E4E4,transparent:true,
-                opacity: 1,
-                side: THREE.DoubleSide,
-                wireframe:false
-            });
-            var winHandle = new THREE.Mesh( winHandleGeometry, winHandleMaterial);
-            winHandle.castShadow = true;
-            winHandle.position.set(glassWidth/2-3,0,1);
-            this.removableGlassBody.add(winHandle);
-            //移动范围1.5倍的玻璃的宽度到0.5倍玻璃的宽度
-            this.removableGlassBody.position.set(glassWidth*3/2,glassHeight/2,0.5);
-
-            this.body.add(fixedGlass);
-            this.body.add(this.removableGlassBody);
-        },
-        open : function(){
-
-        },
-        close : function(){
-
-        }
-    };
-    window.mywindow = mywindow;
-
-    /**----------------------------------------------------------**/
-    /**                        自动门对象                          **/
-    /**                   继承自objectFrame对象                    **/
-    /**----------------------------------------------------------**/
-    var door = function(width,height){
-        objectFrame.call(this,width,height);
-        this.GlassDoor1 = null;
-        this.GlassDoor2 = null;
-        this.isOpening = false;
-        this.isClosing = false;
-        this.isOpened = false;
-        this.isClosed = true;
-        this.doorSpeed = 0.5;
-        this.init();
-    };
-    door.prototype = {
-        init : function(){
-            this.body.add(this.frame(1,5,1,0.1,0xE4E4E4));
-
-            this.GlassDoor1 = new glassDoor(this.width/2-0.5,this.height-1);
-            this.GlassDoor1.body.position.set(0.5,0.5,0);
-            this.body.add(this.GlassDoor1.body);
-
-            this.GlassDoor2 = new glassDoor(this.width/2-0.5,this.height-1);
-            this.GlassDoor2.body.position.set(this.width/2-0.5,0.5,0);
-            this.body.add(this.GlassDoor2.body);
-        },
-        open : function(){
-            if(this.GlassDoor1 != null && this.GlassDoor2 != null){
-                if(!this.isOpened){
-                    if(this.GlassDoor1.body.position.x > -this.width/2 && this.GlassDoor2.body.position.x < this.width){
-                        this.isOpening = true;
-                        this.isClosed = false;
-                        this.GlassDoor1.body.position.x -= this.doorSpeed;
-                        this.GlassDoor2.body.position.x += this.doorSpeed;
-                    }else{
-                        this.isOpened = true;
-                        this.isOpening = false;
-                    }
-                }
-            }
-        },
-        close : function(){
-            if(this.GlassDoor1 != null && this.GlassDoor2 != null){
-                if(!this.isClosed){
-                    if(this.GlassDoor1.body.position.x < 0.5 && this.GlassDoor2.body.position.x > (this.width/2-0.5)){
-                        this.isClosing = true;
-                        this.isOpened = false;
-                        this.GlassDoor1.body.position.x += this.doorSpeed;
-                        this.GlassDoor2.body.position.x -= this.doorSpeed;
-                    }else{
-                        this.isClosed = true;
-                        this.isClosing = false;
-                    }
-                }
-            }
-        }
-    };
-    window.door = door;
-
-    /**----------------------------------------------------------**/
-    /**                        玻璃门对象                        **/
-    /**                   继承自objectFrame对象                  **/
-    /**----------------------------------------------------------**/
-    var glassDoor = function(width,height){
-        objectFrame.call(this,width,height);
-        this.thickness = 0.4;
-        this.init();
-    };
-    glassDoor.prototype = {
-        init : function(){
-            this.body.add(this.frame(1,1,1,1,0xFFFFFF));
-
-            //玻璃
-            var GlassMaterial = new THREE.MeshPhongMaterial( {
-                color: 0xffffff,
-                transparent:true,
-                opacity: 0.5,
-                side: THREE.DoubleSide,
-                wireframe:false});
-            var GlassGeometry = new THREE.BoxBufferGeometry(this.width,this.height,0.5);
-            var Glass = new THREE.Mesh(GlassGeometry, GlassMaterial);
-            Glass.position.set(this.width/2,this.height/2,0);
-            //警示
-            var cautionMaterial = new THREE.MeshBasicMaterial( {
-                color: 0xedfe16,
-                transparent:true,
-                opacity: 1,
-                side: THREE.DoubleSide,
-                wireframe:false,depthTest:true});
-            var cautionGeometry = new THREE.BoxBufferGeometry(this.width-3,5,1);
-            var caution = new THREE.Mesh(cautionGeometry, cautionMaterial);
-            caution.position.set(this.width/2,30,-0.2);
-
-            this.body.add(Glass);
-            this.body.add(caution);
-        }
-    };
-    window.glassDoor = glassDoor;
-
-    /**----------------------------------------------------------**/
-    /**                       通风管道对象                       **/
-    /**                   继承自objectFrame对象                  **/
-    /**----------------------------------------------------------**/
-    var airDuct = function(width,height){
-        objectFrame.call(this,width,height);
-        this.FrameWidth = 1;
-        this.bladeArray = new THREE.Group();
-        this.init();
-    };
-    airDuct.prototype = {
-        init : function(){
-            this.body.add(this.frame(1,1,1,1,0xE4E4E4));
-
-            for(var i=0;i<7;i++){
-                var bladeGeometry = new THREE.PlaneGeometry( this.width,2, 32 );
-                var bladeMaterial = new THREE.MeshPhongMaterial({
-                    color: 0xE4E4E4,
-                    side: THREE.DoubleSide,
-                    wireframe:false
-                });
-                var blade = new THREE.Mesh(bladeGeometry, bladeMaterial );
-                blade.position.set(this.width/2,2.5+i*2.5,0);
-                blade.rotation.x = Math.PI/6;
-                this.bladeArray.add(blade);
-            }
-            this.body.add(this.bladeArray);
-        },
-        open : function(){
-            
-        },
-        close : function(){
-
-        }
-    };
-    window.airDuct = airDuct;
-
-    /**----------------------------------------------------------**/
     /**                        柱片的支撑                        **/
     /**----------------------------------------------------------**/
     var ColumnOfProp = function(height){
@@ -1041,9 +702,9 @@
     };
     ColumnOfProp.prototype = {
         init : function(){
-            var ColumnWidth = 2,
-                ColumnHeight = 1,
-                ColumnDepth = 0.3;
+            var ColumnWidth = 1,
+                ColumnHeight = 0.5,
+                ColumnDepth = 0.1;
 
             var propMaterial = new THREE.MeshLambertMaterial({
                 color: 0x205488,
@@ -1124,7 +785,7 @@
             prop2.body.rotation.y = Math.PI;
             prop2.body.position.set(this.width/2,0,0);
 
-            var beamGeometry = new THREE.BoxBufferGeometry(this.width,0.5,1);
+            var beamGeometry = new THREE.BoxBufferGeometry(this.width,0.5,0.5);
             var beam1 = new THREE.Mesh(beamGeometry, ColumnsMaterial);
             beam1.position.set(0,3,0);
             beam1.castShadow = true;
@@ -1139,7 +800,7 @@
             var L = Math.sqrt(W*W+H*H);
             var ANGLE = Math.atan(H/W)+0.02;
             for(var i=0;i<3;i++){
-                var obliqueBeamGeometry = new THREE.BoxBufferGeometry(L,0.5,1,1,1,1);
+                var obliqueBeamGeometry = new THREE.BoxBufferGeometry(L,0.2,0.5,1,1,1);
                 var obliqueBeam = new THREE.Mesh(obliqueBeamGeometry, ColumnsMaterial);
                 obliqueBeam.rotation.z = Math.pow(-1,i)*ANGLE;
                 obliqueBeam.position.set(0,H*i+H/2+4,0);
@@ -1210,7 +871,7 @@
             //底部支撑横梁
             var bottomBeamGeometry = new THREE.BoxBufferGeometry(this.width+1.6,2,0.3);
             //底部固定的螺丝
-            var bottomScrewGeometry = new THREE.CircleGeometry(0.6,5);
+            var bottomScrewGeometry = new THREE.CircleGeometry(0.3,6);
 
             var bottomBeam1 = new THREE.Mesh(bottomBeamGeometry, ColumnsMaterial);
             bottomBeam1.position.set(0,3,this.depth/2);
@@ -1242,4 +903,18 @@
         }
     };
     window.shelf = shelf;
+
+    /**----------------------------------------------------------**/
+    /**                       通风管道对象                       **/
+    /**----------------------------------------------------------**/
+    var ventpipe = function(widht,height,depth){
+        modelObject.call(this,width,height,depth);
+        this.init();
+    };
+    ventpipe.prototype = {
+        init : function(){
+
+        }
+    };
+    widnow.ventpipe = ventpipe;
 })(window);
