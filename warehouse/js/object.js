@@ -272,7 +272,7 @@
     wall.prototype = {
         init : function(){
             this.material = this.material = new THREE.MeshLambertMaterial({
-                color : 0xBDB76B,
+                color : 0xCDBE70,
                 side : THREE.DoubleSide,
                 wireframe : false
             });
@@ -917,4 +917,26 @@
         }
     };
     widnow.ventpipe = ventpipe;
+
+    /**----------------------------------------------------------**/
+    /**                        仓库的大门                        **/
+    /**----------------------------------------------------------**/
+    var wareDoor = function(width,height,depth){
+        modelObject.call(this,width,height,depth);
+        this.init();
+    };
+    wareDoor.prototype = {
+        init : function(){
+            var extrudeWidth = 0.1,
+                extrudeHeight = 0.5;
+            var wareDoorShape = new THREE.Shape();
+            wareDoorShape.moveTo(0,0);
+            wareDoorShape.lineTo(this.depth/2,0);
+            wareDoorShape.lineTo(this.depth/2,this.height);
+            wareDoorShape.lineTo(-this.depth/2-extrudeWidth,this.height);
+            wareDoorShape.lineTo(-this.depth/2-extrudeWidth,this.height-extrudeHeight);
+            wareDoorShape.lineTo(-this.depth/2,this.height-extrudeHeight);
+        }
+    };
+    window.wareDoor  = wareDoor;
 })(window);
