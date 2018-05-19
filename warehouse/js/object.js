@@ -923,19 +923,39 @@
     /**----------------------------------------------------------**/
     var wareDoor = function(width,height,depth){
         modelObject.call(this,width,height,depth);
+        this.extrudeSettings = {
+            steps: 1,
+            amount: this.width,
+            bevelEnabled: true,
+            bevelSegments: 1,
+            bevelSize: 0.1,
+            bevelThickness: 0.1
+        };
         this.init();
     };
     wareDoor.prototype = {
         init : function(){
-            var extrudeWidth = 0.1,
-                extrudeHeight = 0.5;
+            var extrudeWidth = 0.3;
             var wareDoorShape = new THREE.Shape();
             wareDoorShape.moveTo(0,0);
             wareDoorShape.lineTo(this.depth/2,0);
             wareDoorShape.lineTo(this.depth/2,this.height);
-            wareDoorShape.lineTo(-this.depth/2-extrudeWidth,this.height);
-            wareDoorShape.lineTo(-this.depth/2-extrudeWidth,this.height-extrudeHeight);
-            wareDoorShape.lineTo(-this.depth/2,this.height-extrudeHeight);
+            wareDoorShape.lineTo(-this.depth/2-extrudeWidth,this.height-1);
+            wareDoorShape.lineTo(-this.depth/2-extrudeWidth,this.height-3);
+            wareDoorShape.lineTo(-this.depth/2,this.height-3.5);
+            wareDoorShape.lineTo(-this.depth/2,5);
+            wareDoorShape.lineTo(-this.depth/2-extrudeWidth,3);
+            wareDoorShape.lineTo(-this.depth/2-extrudeWidth,1);
+            wareDoorShape.lineTo(-this.depth/2,0.5);
+            wareDoorShape.lineTo(-this.depth/2,0);
+            wareDoorShape.lineTo(0,0);
+            var doorGeometry = new THREE.ExtrudeBufferGeometry( wareDoorShape, this.extrudeSettings );
+            var doorMaterial = new THREE.MeshLambertMaterial({
+                color: 0x205488,
+                wireframe : false
+            });
+            var DoorMesh = new THREE.Mesh(doorGeometry,doorMaterial);
+            this.body.add(DoorMesh);
         }
     };
     window.wareDoor  = wareDoor;

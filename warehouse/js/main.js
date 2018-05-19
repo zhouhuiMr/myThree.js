@@ -77,6 +77,9 @@ window.onload = function(){
     var wareWall = new wall(wareHouseWidth,wareHouseHeight,wareHouseWallHeight);
     scene.add(wareWall.build());
 
+    var w = new wareDoor(50,30,0.2);
+    scene.add(w.build());
+
 
     // var wall_1 = new wall(wareHouseWidth,wallHeight);
     // wall_1.additional = function(rectangle){
