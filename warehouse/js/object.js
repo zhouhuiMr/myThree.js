@@ -227,6 +227,27 @@
         }
     };
 
+    var Glass = function(width,height,depth){
+        modelObject.call(this,width,height,depth);
+        this.GlassMaterial = null;
+        this.init();
+    };
+    Glass.prototype = {
+        init : function(){
+            console.info(this.body);
+            this.GlassMaterial = new THREE.MeshPhongMaterial( {
+                color: 0xffffff,
+                transparent:true,
+                opacity: 0.5,
+                side: THREE.DoubleSide,
+                wireframe:false
+            });
+            var glassGeomotry = new THREE.BoxBufferGeometry(this.width,this.height,this.depth,1,1);
+            var glass = new THREE.Mesh(glassGeomotry,this.GlassMaterial);
+            this.body.add(glass);
+        }
+    };
+
     /**----------------------------------------------------------**/
     /**                          创建地面                        **/
     /**----------------------------------------------------------**/
@@ -282,47 +303,48 @@
                 Shape_3 = new rectangleShape(this.sizeY,this.wallHeight).build(),
                 Shape_4 = new rectangleShape(this.sizeY,this.wallHeight).build();
             //添加正门
-            var mainDoorHeight = 60;
-            var mainDoorFrame =  new rectanglePath(0,(mainDoorHeight-this.wallHeight+0.2)/2,100,mainDoorHeight);
+            var mainDoorHeight = 20;
+            var mainDoorFrame =  new rectanglePath(0,(mainDoorHeight-this.wallHeight+0.2)/2,25,mainDoorHeight);
             Shape_1.holes.push(mainDoorFrame.build());
 
             //通风口
             var ventWidth = 5,
-                ventHeight = 3;
-            var vent_1 = new rectanglePath(this.sizeY/3,this.wallHeight/2-10,ventWidth,ventHeight);
+                ventHeight = 3,
+                toTop = 5;
+            var vent_1 = new rectanglePath(this.sizeY/3,this.wallHeight/2-toTop,ventWidth,ventHeight);
             Shape_3.holes.push(vent_1.build());
-            var vent_2 = new rectanglePath(this.sizeY/9,this.wallHeight/2-10,ventWidth,ventHeight);
+            var vent_2 = new rectanglePath(this.sizeY/9,this.wallHeight/2-toTop,ventWidth,ventHeight);
             Shape_3.holes.push(vent_2.build());
-            var vent_3 = new rectanglePath(-this.sizeY/9,this.wallHeight/2-10,ventWidth,ventHeight);
+            var vent_3 = new rectanglePath(-this.sizeY/9,this.wallHeight/2-toTop,ventWidth,ventHeight);
             Shape_3.holes.push(vent_3.build());
-            var vent_4 = new rectanglePath(-this.sizeY/3,this.wallHeight/2-10,ventWidth,ventHeight);
+            var vent_4 = new rectanglePath(-this.sizeY/3,this.wallHeight/2-toTop,ventWidth,ventHeight);
             Shape_3.holes.push(vent_4.build());
 
-            var vent_5 = new rectanglePath(this.sizeY/3,this.wallHeight/2-10,ventWidth,ventHeight);
+            var vent_5 = new rectanglePath(this.sizeY/3,this.wallHeight/2-toTop,ventWidth,ventHeight);
             Shape_4.holes.push(vent_5.build());
-            var vent_6 = new rectanglePath(this.sizeY/9,this.wallHeight/2-10,ventWidth,ventHeight);
+            var vent_6 = new rectanglePath(this.sizeY/9,this.wallHeight/2-toTop,ventWidth,ventHeight);
             Shape_4.holes.push(vent_6.build());
-            var vent_7 = new rectanglePath(-this.sizeY/9,this.wallHeight/2-10,ventWidth,ventHeight);
+            var vent_7 = new rectanglePath(-this.sizeY/9,this.wallHeight/2-toTop,ventWidth,ventHeight);
             Shape_4.holes.push(vent_7.build());
-            var vent_8 = new rectanglePath(-this.sizeY/3,this.wallHeight/2-10,ventWidth,ventHeight);
+            var vent_8 = new rectanglePath(-this.sizeY/3,this.wallHeight/2-toTop,ventWidth,ventHeight);
             Shape_4.holes.push(vent_8.build());
 
-            var vent_9 = new rectanglePath(this.sizeX/4,this.wallHeight/2-10,ventWidth,ventHeight);
+            var vent_9 = new rectanglePath(this.sizeX/4,this.wallHeight/2-toTop,ventWidth,ventHeight);
             Shape_2.holes.push(vent_9.build());
-            var vent_10 = new rectanglePath(-this.sizeX/4,this.wallHeight/2-10,ventWidth,ventHeight);
+            var vent_10 = new rectanglePath(-this.sizeX/4,this.wallHeight/2-toTop,ventWidth,ventHeight);
             Shape_2.holes.push(vent_10.build());
 
             //监控室的窗窗
-            var monitorWindowWidth = 11,
+            var monitorWindowWidth = 7,
                 monitorWindowheight = 9;
-            var monitorWindow= new rectanglePath(this.sizeY/2-25,10-this.wallHeight/2,monitorWindowWidth,monitorWindowheight);
+            var monitorWindow= new rectanglePath(this.sizeY/2-10,10-this.wallHeight/2,monitorWindowWidth,monitorWindowheight);
             Shape_4.holes.push(monitorWindow.build());
             //监控室的窗台
             var monitorWindowSill = new THREE.BoxBufferGeometry(1,1,monitorWindowWidth);
             monitorWindowSill.translate(
                 this.sizeX/2,
                 5,
-                25-this.sizeY/2
+                10-this.sizeY/2
             );
 
             var wallGeometry_1 = new THREE.ExtrudeBufferGeometry(Shape_1,this.extrudeSettings);
@@ -340,22 +362,22 @@
             wallGeometry_4.translate(this.sizeX/2,this.wallHeight/2,0);
 
             //监控室的墙
-            var monitorRoomSize = 50,
-                monitorRoomHeight = 30;
+            var monitorRoomSize = 15,
+                monitorRoomHeight = 20;
             var monitorWallShape_1 = new rectangleShape(monitorRoomSize,monitorRoomHeight).build(),
                 monitorWallShape_2 = new rectangleShape(monitorRoomSize,monitorRoomHeight).build();
             //监控室的门
             var monitorDoorHeight = 12,
-                monitorDoorwidth = 4
+                monitorDoorwidth = 4;
             var monitorDoor = new rectanglePath(5-monitorRoomSize/2,(monitorDoorHeight-monitorRoomHeight+0.2)/2,monitorDoorwidth,monitorDoorHeight);
             monitorWallShape_1.holes.push(monitorDoor.build());
             //大窗户
-            var bigGlassWinth = 25,
-                bigGlassHeight = 10;
-            var bigGlassWindowFrame = new rectanglePath(0,10-monitorRoomHeight/2,bigGlassWinth,bigGlassHeight);
+            var bigGlassWinth = 10,
+                bigGlassHeight = 6;
+            var bigGlassWindowFrame = new rectanglePath(0,8-monitorRoomHeight/2,bigGlassWinth,bigGlassHeight);
             monitorWallShape_2.holes.push(bigGlassWindowFrame.build());
             //大窗户窗台
-            var bigGlassWindowSill = new THREE.BoxBufferGeometry(2,1,25);
+            var bigGlassWindowSill = new THREE.BoxBufferGeometry(2,1,10);
             bigGlassWindowSill.translate(
                 this.sizeX/2-monitorRoomSize,
                 4.5,
@@ -385,8 +407,8 @@
             );
 
             //柱子
-            var pillarWidth = 2,
-                pillarHeight = 5;
+            var pillarWidth = 1,
+                pillarHeight = 3;
             var pillar_1 = new THREE.BoxBufferGeometry(pillarWidth,this.wallHeight,2);
             pillar_1.translate(this.sizeX/2-pillarWidth/2,this.wallHeight/2,1-this.sizeY/2);
             var pillar_2 = new THREE.BoxBufferGeometry(pillarWidth,this.wallHeight,2);
@@ -439,7 +461,7 @@
             var glassWindow = new bigGlassWindow(bigGlassWinth,bigGlassHeight).build();
             glassWindow.position.set(
                 this.sizeX/2-monitorRoomSize+0.2,
-                10,
+                8,
                 (monitorRoomSize-this.sizeY)/2
             );
 
@@ -449,7 +471,7 @@
             sashedWindow.position.set(
                 this.sizeX/2 - 0.1,
                 10,
-                25-this.sizeY/2
+                10-this.sizeY/2
             );
 
             //监控室的门
@@ -759,7 +781,7 @@
     };
 
     /**----------------------------------------------------------**/
-    /**                            柱片                          **/
+    /**                         货架柱片                         **/
     /**----------------------------------------------------------**/
     var Columns = function(width,height){
         this.body = new THREE.Group();
@@ -907,13 +929,33 @@
     /**----------------------------------------------------------**/
     /**                       通风管道对象                       **/
     /**----------------------------------------------------------**/
-    var ventpipe = function(widht,height,depth){
+    var ventpipe = function(width,height,depth){
         modelObject.call(this,width,height,depth);
         this.init();
     };
     ventpipe.prototype = {
         init : function(){
+            var ventpipeFrameShape = new rectangleFrameObject(this.width,this.height,0.2).build();
+            var ventpipeFrameExtrudeSettings = {
+                steps: 1,
+                amount: this.depth,
+                bevelEnabled: false,
+                bevelSegments: 1,
+                bevelSize: 0.1,
+                bevelThickness: 0.1
+            };
+            var ventpipeFrameGeometry = new THREE.ExtrudeBufferGeometry(ventpipeFrameShape,ventpipeFrameExtrudeSettings);
+            ventpipeFrameGeometry.translate(0,this.height/2,0);
+            var ventpipeFrameMaterial = new THREE.MeshPhongMaterial({
+                color: 0xdedede,
+                side : THREE.DoubleSide,
+                wireframe:false
+            });
+            //边框
+            var ventpipeFrame = new THREE.Mesh(ventpipeFrameGeometry,ventpipeFrameMaterial);
 
+            //通风管道叶片
+            this.body.add(ventpipeFrame);
         }
     };
     widnow.ventpipe = ventpipe;
@@ -923,39 +965,85 @@
     /**----------------------------------------------------------**/
     var wareDoor = function(width,height,depth){
         modelObject.call(this,width,height,depth);
-        this.extrudeSettings = {
-            steps: 1,
-            amount: this.width,
-            bevelEnabled: true,
-            bevelSegments: 1,
-            bevelSize: 0.1,
-            bevelThickness: 0.1
-        };
+        this.doorFrame = null;
+        this.leftDoor = new THREE.Group();
+        this.rightDoor = new THREE.Group();
         this.init();
     };
     wareDoor.prototype = {
         init : function(){
-            var extrudeWidth = 0.3;
-            var wareDoorShape = new THREE.Shape();
-            wareDoorShape.moveTo(0,0);
-            wareDoorShape.lineTo(this.depth/2,0);
-            wareDoorShape.lineTo(this.depth/2,this.height);
-            wareDoorShape.lineTo(-this.depth/2-extrudeWidth,this.height-1);
-            wareDoorShape.lineTo(-this.depth/2-extrudeWidth,this.height-3);
-            wareDoorShape.lineTo(-this.depth/2,this.height-3.5);
-            wareDoorShape.lineTo(-this.depth/2,5);
-            wareDoorShape.lineTo(-this.depth/2-extrudeWidth,3);
-            wareDoorShape.lineTo(-this.depth/2-extrudeWidth,1);
-            wareDoorShape.lineTo(-this.depth/2,0.5);
-            wareDoorShape.lineTo(-this.depth/2,0);
-            wareDoorShape.lineTo(0,0);
-            var doorGeometry = new THREE.ExtrudeBufferGeometry( wareDoorShape, this.extrudeSettings );
-            var doorMaterial = new THREE.MeshLambertMaterial({
-                color: 0x205488,
-                wireframe : false
+            //门框
+            var doorFrameShape = new rectangleFrameObject(this.width,this.height,0.4).build();
+            var doorFrameExtrudeSettings = {
+                steps: 1,
+                amount: this.depth,
+                bevelEnabled: false,
+                bevelSegments: 1,
+                bevelSize: 0.1,
+                bevelThickness: 0.1
+            };
+            var doorFrameGeometry = new THREE.ExtrudeBufferGeometry(doorFrameShape,doorFrameExtrudeSettings);
+            var doorFrameMaterial = new THREE.MeshPhongMaterial({
+                color: 0x98999a,
+                side : THREE.DoubleSide,
+                wireframe:false
             });
-            var DoorMesh = new THREE.Mesh(doorGeometry,doorMaterial);
-            this.body.add(DoorMesh);
+            this.doorFrame = new THREE.Mesh(doorFrameGeometry,doorFrameMaterial);
+            this.doorFrame.position.set(0,this.height/2,-0.1);
+            this.body.add(this.doorFrame);
+            //门的外形
+            var doorShape = new rectangleFrameObject(this.width/2-0.4,this.height-0.5,0.1).build();
+            var doorExtrudeSettings = {
+                steps: 1,
+                amount: 0.1,
+                bevelEnabled: true,
+                bevelSegments: 1,
+                bevelSize: 0.2,
+                bevelThickness: 0.1
+            };
+            var doorGeometry = new THREE.ExtrudeBufferGeometry(doorShape,doorExtrudeSettings);
+            doorGeometry.translate(0,this.height/2,0.1);
+            var doorMaterial = new THREE.MeshPhongMaterial({
+                color: 0xb5b5b5,
+                side : THREE.DoubleSide,
+                wireframe:false
+            });
+
+            //警告线(黄色)
+            var warningMaterial = new THREE.MeshBasicMaterial({
+                color: 0xe6d700,
+                side : THREE.DoubleSide,
+                wireframe:false
+            });
+            var warningGeometry = new THREE.PlaneBufferGeometry(this.width/2-0.5,1.5);
+            warningGeometry.translate(0,8,0.1);
+            var warning1 = new THREE.Mesh(warningGeometry,warningMaterial);
+            var warning2 = new THREE.Mesh(warningGeometry,warningMaterial);
+
+            var door1 = new THREE.Mesh(doorGeometry,doorMaterial);
+            var door1_glass = new Glass(this.width/2-0.3,this.height-0.5,0.1).build();
+            door1_glass.position.set(0,this.height/2,0.2);
+            this.leftDoor.add(door1);
+            this.leftDoor.add(door1_glass);
+            this.leftDoor.add(warning1);
+            this.leftDoor.position.set(this.width/4-0.2,0,0);
+
+            var door2 = new THREE.Mesh(doorGeometry,doorMaterial);
+            var door2_glass = new Glass(this.width/2-0.3,this.height-0.5,0.1).build();
+            door2_glass.position.set(0,this.height/2,0.2);
+            this.rightDoor.add(door2);
+            this.rightDoor.add(door2_glass);
+            this.rightDoor.add(warning2);
+            this.rightDoor.position.set(0.3-this.width/4,0,0);
+
+            this.body.add(this.leftDoor);
+            this.body.add(this.rightDoor);
+        },
+        open : function(){
+
+        },
+        close : function(){
+
         }
     };
     window.wareDoor  = wareDoor;
