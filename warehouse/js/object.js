@@ -458,7 +458,7 @@
             wall.castShadow = true;
 
             //监控室的大玻璃窗
-            var glassWindow = new bigGlassWindow(bigGlassWinth,bigGlassHeight).build();
+            var glassWindow = new bigGlassWindow(bigGlassWinth+0.5,bigGlassHeight+0.5).build();
             glassWindow.position.set(
                 this.sizeX/2-monitorRoomSize+0.2,
                 8,
@@ -955,7 +955,25 @@
             var ventpipeFrame = new THREE.Mesh(ventpipeFrameGeometry,ventpipeFrameMaterial);
 
             //通风管道叶片
+            var vaneCount = 6;
+            var height = this.height / vaneCount;//计算高度
+            var vaneGeometry = new THREE.PlaneBufferGeometry(this.width,height - 0.1);
+            vaneGeometry.translate(0,height/2,0);
+            vaneGeometry.rotateX(Math.PI/10);
+            var vaneMaterial = new THREE.MeshPhongMaterial({
+                color: 0xdedede,
+                side : THREE.DoubleSide,
+                wireframe:false
+            });
+            var vaneGroup = new THREE.Group();
+            for(var i=0;i<vaneCount;i++){
+                var vane = new THREE.Mesh(vaneGeometry,vaneMaterial);
+                vane.position.set(0,i*height,0);
+                vaneGroup.add(vane);
+            }
+            vaneGroup.castShadow = true;
             this.body.add(ventpipeFrame);
+            this.body.add(vaneGroup);
         }
     };
     widnow.ventpipe = ventpipe;

@@ -81,8 +81,30 @@ window.onload = function(){
     door.body.position.set(0,0,0.1-wareHouseHeight/2);
     scene.add(door.build());
 
-    var pipe = new ventpipe(20,10,1);
-    scene.add(pipe.build());
+    var toTop = 6.5;
+    for(var i=1;i<=4;i++){
+        var pipe_1 = new ventpipe(5,3,0.4);
+        var pipe_2 = new ventpipe(5,3,0.4);
+        if(i <= 2){
+            pipe_1.body.rotation.y = Math.PI / 2;
+            pipe_1.body.position.set(wareHouseWidth / 2,wareHouseWallHeight - toTop,Math.pow(-1,i) * wareHouseHeight / 3);
+            pipe_2.body.rotation.y = Math.PI / 2;
+            pipe_2.body.position.set(wareHouseWidth / 2,wareHouseWallHeight - toTop,Math.pow(-1,i) * wareHouseHeight / 9);
+        }else{
+            pipe_1.body.rotation.y = -1 * Math.PI / 2;
+            pipe_1.body.position.set(0.4 - 1 * wareHouseWidth / 2,wareHouseWallHeight - toTop,Math.pow(-1,i) * wareHouseHeight / 3);
+            pipe_2.body.rotation.y = -1 * Math.PI / 2;
+            pipe_2.body.position.set(0.4 - 1 *wareHouseWidth / 2,wareHouseWallHeight - toTop,Math.pow(-1,i) * wareHouseHeight / 9);
+        }
+        scene.add(pipe_1.build());
+        scene.add(pipe_2.build());
+    }
+    var pipe_3 = new ventpipe(5,3,0.4);
+    pipe_3.body.position.set(wareHouseWidth / 4,wareHouseWallHeight - toTop,wareHouseHeight / 2);
+    scene.add(pipe_3.build());
+    var pipe_4 = new ventpipe(5,3,0.4);
+    pipe_4.body.position.set(-wareHouseWidth / 4,wareHouseWallHeight - toTop,wareHouseHeight / 2);
+    scene.add(pipe_4.build());
 
     var animate = function () {
         requestAnimationFrame( animate );
