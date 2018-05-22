@@ -106,6 +106,29 @@ window.onload = function(){
     pipe_4.body.position.set(-wareHouseWidth / 4,wareHouseWallHeight - toTop,wareHouseHeight / 2);
     scene.add(pipe_4.build());
 
+    //创建货架
+    var shelfWidth = 10,
+        shelfHeight = 20,
+        shelfDepth = 3;
+    var toLREdge = shelfWidth / 2  + 3;
+    var toFBEdge = shelfDepth / 2 + 10;
+    var shelfDistence = 15;
+    for(var i = 0 ; i < 3 ; i ++){
+        var leftshelf1 = new shelf(shelfWidth,shelfHeight,shelfDepth);
+        leftshelf1.body.position.set( wareHouseWidth / 2 - toLREdge,0,wareHouseHeight / 2 - toFBEdge - shelfDistence * i);
+        scene.add(leftshelf1.body);
+        var leftshelf2 = new shelf(shelfWidth,shelfHeight,shelfDepth);
+        leftshelf2.body.position.set( wareHouseWidth / 2 - toLREdge - shelfWidth -1,0,wareHouseHeight / 2 - toFBEdge - shelfDistence * i);
+        scene.add(leftshelf2.body);
+        var rightshelf1 = new shelf(shelfWidth,shelfHeight,shelfDepth);
+        rightshelf1.body.position.set(toLREdge - wareHouseWidth / 2 ,0,wareHouseHeight / 2 - toFBEdge - shelfDistence * i);
+        scene.add(rightshelf1.body);
+        var rightshelf2 = new shelf(shelfWidth,shelfHeight,shelfDepth);
+        rightshelf2.body.position.set(toLREdge + shelfWidth + 1 - wareHouseWidth / 2 ,0,wareHouseHeight / 2 - toFBEdge - shelfDistence * i);
+        scene.add(rightshelf2.body);
+    }
+
+
     var animate = function () {
         requestAnimationFrame( animate );
 
