@@ -20,7 +20,7 @@ window.onload = function(){
     var scene = new THREE.Scene(); // 场景
     scene.background = new THREE.Color( 0x000000);
 
-    var camera = new THREE.PerspectiveCamera(75, 1, 1, 1500); //相机的设置
+    var camera = new THREE.PerspectiveCamera(75, 1, 1, 200); //相机的设置
     camera.position.set( 0, -1, 0);
 
 
@@ -127,6 +127,9 @@ window.onload = function(){
         rightshelf2.body.position.set(toLREdge + shelfWidth + 1 - wareHouseWidth / 2 ,0,wareHouseHeight / 2 - toFBEdge - shelfDistence * i);
         scene.add(rightshelf2.body);
     }
+
+    var tree = new pinetree(5,50,0);
+    scene.add(tree.build());
 
 
     var animate = function () {

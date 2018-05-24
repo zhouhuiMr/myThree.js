@@ -1096,4 +1096,24 @@
         }
     };
     window.wareDoor  = wareDoor;
+
+    var pinetree = function(width,height,depth){
+        modelObject.call(this,width,height,depth);
+        this.init();
+    };
+    pinetree.prototype = {
+        init : function(){
+            var leafMaterial = new THREE.MeshLambertMaterial({
+                color : 0x30652f,
+                side : THREE.FrontSide,
+                wireframe:false
+            });
+            var leafGeometry = new THREE.ConeBufferGeometry(this.width,this.height,5,1,false,0,6.3);
+            leafGeometry.translate(0,this.height / 2 + 5,10);
+            var leaf = new THREE.Mesh(leafGeometry,leafMaterial);
+            leaf.castShadow = true;
+            this.body.add(leaf);
+        }
+    };
+    window.pinetree = pinetree;
 })(window);
