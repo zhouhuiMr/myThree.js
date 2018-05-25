@@ -1099,21 +1099,83 @@
 
     var pinetree = function(width,height,depth){
         modelObject.call(this,width,height,depth);
+        this.plies = 5;
+        this.radialSegments = 6;//分段数
         this.init();
     };
     pinetree.prototype = {
         init : function(){
             var leafMaterial = new THREE.MeshLambertMaterial({
-                color : 0x30652f,
-                side : THREE.FrontSide,
+                color : 0x3c6b2e,
+                side : THREE.DoubleSide,
+                flatShading : true,
                 wireframe:false
             });
-            var leafGeometry = new THREE.ConeBufferGeometry(this.width,this.height,5,1,false,0,6.3);
-            leafGeometry.translate(0,this.height / 2 + 5,10);
+
+            var pliesHeight = this.height / this.plies,//每层的高度
+                 pliesWidth = this.width / this.plies;//每层的宽度
+            var leafGeometryArray = [];
+            for(var i=0;i<this.plies;i++){
+                var pliesBottomWidth = this.width - i * pliesWidth,
+                    pliesTopWidth = this.width - (i + 1) * pliesWidth;
+                var bevel = 0.3;
+                if(pliesTopWidth < bevel){
+                    pliesTopWidth = bevel + 0.1;
+                }
+                var pliesGeometry = new THREE.CylinderBufferGeometry(
+                    pliesTopWidth - bevel,pliesBottomWidth,pliesHeight + 0.1,
+                    this.radialSegments,1,true,0,6.3
+                );
+                pliesGeometry.translate(0,pliesHeight * i,0);
+                leafGeometryArray.push(pliesGeometry);
+            }
+            var bottomPliesGeometry = new THREE.CylinderBufferGeometry(
+                this.width - 0.3 ,this.width - 2, 2,
+                this.radialSegments,1,false,0,6.3
+            );
+            bottomPliesGeometry.translate(0,2 - pliesHeight,0);
+            leafGeometryArray.push(bottomPliesGeometry);
+
+            var leafGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries(leafGeometryArray);
+            leafGeometry.translate(0,pliesHeight / 2 + 5,0);
             var leaf = new THREE.Mesh(leafGeometry,leafMaterial);
             leaf.castShadow = true;
+
+            //树干
+            var trunkMaterial = new THREE.MeshLambertMaterial({
+                color : 0x735b3a,
+                side : THREE.DoubleSide,
+                flatShading : true,
+                wireframe:false
+            });
+            var trunkGeometry = new THREE.CylinderBufferGeometry(
+                1,1.5,5,6,1,false,0,6.3
+            );
+            trunkGeometry.translate(0,0.5,0);
+            var trunk = new THREE.Mesh(trunkGeometry,trunkMaterial);
             this.body.add(leaf);
+            this.body.add(trunk);
         }
     };
     window.pinetree = pinetree;
+
+    var holly = function(width){
+        modelObject.call(this,width,0,0);
+        this.init()
+    };
+    holly.prototype = {
+        init : function(){
+            var hollyMaterial = new THREE.MeshLambertMaterial({
+                color : 0x315d22,
+                side : THREE.DoubleSide,
+                flatShading : true,
+                wireframe:false
+            });
+            var hollyGeomotry = new THREE.DodecahedronGeometry(this.width,0);
+            hollyGeomotry.translate(0,this.width ,0);
+            var holly = new THREE.Mesh(hollyGeomotry,hollyMaterial);
+            this.body.add(holly);
+        }
+    };
+    window.holly = holly;
 })(window);

@@ -128,8 +128,12 @@ window.onload = function(){
         scene.add(rightshelf2.body);
     }
 
-    var tree = new pinetree(5,50,0);
-    scene.add(tree.build());
+    // var tree = new pinetree(5,30,0);
+    // scene.add(tree.build());
+
+    var h = new holly(2);
+    scene.add(h.build());
+
 
 
     var animate = function () {
