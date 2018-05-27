@@ -153,6 +153,7 @@
             return this.body;
         }
     };
+    window.modelObject = modelObject;
     /**----------------------------------------------------------**/
     /**                      矩形path 返回Path                   **/
     /**----------------------------------------------------------**/
@@ -178,7 +179,7 @@
             this.Path.lineTo(this.x-w,this.y-h);
         }
     };
-
+    window.rectanglePath = rectanglePath;
     /**----------------------------------------------------------**/
     /**                         矩形的边框                       **/
     /**----------------------------------------------------------**/
@@ -203,6 +204,7 @@
             this.Shape.holes.push(path);
         }
     };
+    window.rectangleFrameObject = rectangleFrameObject;
     /**----------------------------------------------------------**/
     /**                      矩形shape 返回Shape                 **/
     /**----------------------------------------------------------**/
@@ -226,6 +228,7 @@
             this.Shape.lineTo(-x,-y);
         }
     };
+    widnow.rectangleShape = rectangleShape;
 
     var Glass = function(width,height,depth){
         modelObject.call(this,width,height,depth);
@@ -248,6 +251,7 @@
             this.body.add(glass);
         }
     };
+    window.Glass = Glass;
 
     /**----------------------------------------------------------**/
     /**                          创建地面                        **/
@@ -263,11 +267,54 @@
                 side : THREE.FrontSide,
                 wireframe : false
             });
-            var floorGeometry = new THREE.PlaneBufferGeometry(this.width,this.height);
-            floorGeometry.rotateX( - Math.PI / 2 );
-            var floor = new THREE.Mesh(floorGeometry, this.material);
-            floor.receiveShadow = true;
-            this.body.add(floor);
+            //仓库地面材质
+            var wareFloorMaterial = new THREE.MeshPhongMaterial({
+                color : 0x656b72,
+                side : THREE.FrontSide,
+                wireframe : false
+            });
+            //监控室地面材质
+            var monitorFloorMaterial = new THREE.MeshPhongMaterial({
+                color : 0x78562b,
+                side : THREE.FrontSide,
+                wireframe : false
+            });
+            //仓库外面的地面材质
+            var outFloorMaterial = new THREE.MeshLambertMaterial({
+                color : 0x656b72,
+                side : THREE.FrontSide,
+                wireframe : false
+            });
+            //监控室地面
+            var monitorWidth = 15;
+            var monitorFloorGeometry = new THREE.PlaneBufferGeometry(monitorWidth,monitorWidth);
+            monitorFloorGeometry.rotateX( - Math.PI / 2 );
+            var monitorFloor = new THREE.Mesh(monitorFloorGeometry,monitorFloorMaterial);
+            monitorFloor.receiveShadow = true;
+            monitorFloor.position.set(this.width / 2 - monitorWidth / 2,0,monitorWidth / 2 - this.height / 2);
+            this.body.add(monitorFloor);
+
+            //仓库的地面
+            var floorWidth = this.width - monitorWidth;
+            var ware_1_FloorGeometry = new THREE.PlaneBufferGeometry(floorWidth,monitorWidth,3,1);
+            ware_1_FloorGeometry.rotateX( - Math.PI / 2 );
+            ware_1_FloorGeometry.translate(-monitorWidth / 2,0,monitorWidth / 2 - this.height / 2 + 0.5);
+            var ware_2_FloorGeometry = new THREE.PlaneBufferGeometry(this.width,this.height - monitorWidth - 0.2,4,5);
+            ware_2_FloorGeometry.rotateX( - Math.PI / 2 );
+            ware_2_FloorGeometry.translate(0,0,monitorWidth / 2 + 0.3);
+            var wareFloorGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries([
+                ware_1_FloorGeometry,
+                ware_2_FloorGeometry
+            ]);
+            var wareFloor = new THREE.Mesh(wareFloorGeometry,wareFloorMaterial);
+            this.body.add(wareFloor);
+
+
+            // var floorGeometry = new THREE.PlaneBufferGeometry(this.width,this.height);
+            // floorGeometry.rotateX( - Math.PI / 2 );
+            // var floor = new THREE.Mesh(floorGeometry, this.material);
+            // floor.receiveShadow = true;
+            // this.body.add(floor);
         }
     };
     widnow.floor = floor;
@@ -382,16 +429,16 @@
 
             for(var i = 0;i < 2;i++){
                 var num = Math.pow(-1,i);
-                var wall_3_center1 = new THREE.BoxBufferGeometry(wall_3_centerWidth1,ventHeight,this.depth,2,3);
+                var wall_3_center1 = new THREE.BoxBufferGeometry(wall_3_centerWidth1,ventHeight,this.depth,1,1);
                 wall_3_center1.translate(num * (this.sizeY / 2 - wall_3_centerWidth1 / 2), wall_3_bottomHeight / 2 + ventHeight / 2,0);
                 wall_3_array.push(wall_3_center1);
 
-                var wall_3_center2 = new THREE.BoxBufferGeometry(wall_3_centerWidth2,ventHeight,this.depth,2,3);
+                var wall_3_center2 = new THREE.BoxBufferGeometry(wall_3_centerWidth2,ventHeight,this.depth,1,1);
                 wall_3_center2.translate(num * (this.sizeY / 2 - wall_3_centerWidth1 - ventWidth - wall_3_centerWidth2 / 2 ),
                     wall_3_bottomHeight / 2 + ventHeight / 2,0);
                 wall_3_array.push(wall_3_center2);
             }
-            var wall_3_center3 = new THREE.BoxBufferGeometry(wall_3_centerWidth2,ventHeight,this.depth,2,3);
+            var wall_3_center3 = new THREE.BoxBufferGeometry(wall_3_centerWidth2,ventHeight,this.depth,1,1);
             wall_3_center3.translate(0, wall_3_bottomHeight / 2 + ventHeight / 2,0);
             wall_3_array.push(wall_3_center3);
 
@@ -420,7 +467,7 @@
             wall_4_bottomBack.translate(-this.sizeY /2 + wall_4_bottomWidth1 / 2,0,0);
             wall_4_array.push(wall_4_bottomBack);
 
-            var wall_4_bottomFront = new THREE.BoxBufferGeometry(wall_4_bottomWidth2,wall_3_bottomHeight,this.depth,8,3);
+            var wall_4_bottomFront = new THREE.BoxBufferGeometry(wall_4_bottomWidth2,wall_3_bottomHeight,this.depth,1,2);
             wall_4_bottomFront.translate(this.sizeY /2 - wall_4_bottomWidth2 / 2,0,0);
             wall_4_array.push(wall_4_bottomFront);
 
@@ -436,16 +483,16 @@
 
             for(var i = 0;i < 2;i++){
                 var num = Math.pow(-1,i);
-                var wall_4_center1 = new THREE.BoxBufferGeometry(wall_4_centerWidth1,ventHeight,this.depth,2,3);
+                var wall_4_center1 = new THREE.BoxBufferGeometry(wall_4_centerWidth1,ventHeight,this.depth,1,1);
                 wall_4_center1.translate(num * (this.sizeY / 2 - wall_4_centerWidth1 / 2), wall_4_bottomHeight / 2 + ventHeight / 2,0);
                 wall_4_array.push(wall_4_center1);
 
-                var wall_4_center2 = new THREE.BoxBufferGeometry(wall_4_centerWidth2,ventHeight,this.depth,2,3);
+                var wall_4_center2 = new THREE.BoxBufferGeometry(wall_4_centerWidth2,ventHeight,this.depth,1,1);
                 wall_4_center2.translate(num * (this.sizeY / 2 - wall_4_centerWidth1 - ventWidth - wall_4_centerWidth2 / 2 ),
                     wall_4_bottomHeight / 2 + ventHeight / 2,0);
                 wall_4_array.push(wall_4_center2);
             }
-            var wall_4_center3 = new THREE.BoxBufferGeometry(wall_4_centerWidth2,ventHeight,this.depth,2,3);
+            var wall_4_center3 = new THREE.BoxBufferGeometry(wall_4_centerWidth2,ventHeight,this.depth,1,1);
             wall_4_center3.translate(0, wall_4_bottomHeight / 2 + ventHeight / 2,0);
             wall_4_array.push(wall_4_center3);
 

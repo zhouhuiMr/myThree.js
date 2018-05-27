@@ -68,7 +68,7 @@ window.onload = function(){
     /**----------------------------------------------------------**/
     /**                          地面                             **/
     /**----------------------------------------------------------**/
-    var wareFloor = new floor(wareHouseWidth*2,wareHouseHeight*2);
+    var wareFloor = new floor(wareHouseWidth,wareHouseHeight);
     scene.add(wareFloor.build());
 
     /**----------------------------------------------------------**/
@@ -147,7 +147,7 @@ window.onload = function(){
     light.position.set( 0, 30, 0 );
     scene.add( light );
 
-    var pointLightHelper = new THREE.PointLightHelper( light, 20);
+    var pointLightHelper = new THREE.PointLightHelper( light, 30);
     scene.add( pointLightHelper );
 
     // var h = new holly(2);
