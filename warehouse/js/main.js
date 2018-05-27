@@ -37,21 +37,21 @@ window.onload = function(){
     /**----------------------------------------------------------**/
     /**                          灯光                             **/
     /**----------------------------------------------------------**/
-    var ambientLight = new THREE.AmbientLight( 0xffffff,0.9);
-    scene.add(ambientLight);
+    // var ambientLight = new THREE.AmbientLight( 0xffffff,0.9);
+    // scene.add(ambientLight);
 
-    var spotLight = new THREE.SpotLight( 0xffffff,1);
-    spotLight.position.set( 0, 700, 0 );
-
-    spotLight.castShadow = true;
-
-    spotLight.shadow.mapSize.width = 1024;
-    spotLight.shadow.mapSize.height = 1024;
-
-    spotLight.shadow.camera.near = 500;
-    spotLight.shadow.camera.far = 1000;
-    spotLight.shadow.camera.fov = 30;
-    scene.add( spotLight );
+    // var spotLight = new THREE.SpotLight( 0xffffff,1);
+    // spotLight.position.set( 0, 70, 0 );
+    //
+    // spotLight.castShadow = true;
+    //
+    // spotLight.shadow.mapSize.width = 1024;
+    // spotLight.shadow.mapSize.height = 1024;
+    //
+    // spotLight.shadow.camera.near = 500;
+    // spotLight.shadow.camera.far = 1000;
+    // spotLight.shadow.camera.fov = 30;
+    // scene.add( spotLight );
     //
     // var spotLightHelper = new THREE.SpotLightHelper( spotLight );
     // scene.add( spotLightHelper );
@@ -128,13 +128,30 @@ window.onload = function(){
         scene.add(rightshelf2.body);
     }
 
-    // var tree = new pinetree(5,30,0);
-    // scene.add(tree.build());
+    //添加松树
+    for(var i = 0;i<2; i++){
+        for(var j=0;j<9;j++){
+            var pine = new pinetree(5,30,0);
+            pine.body.position.set(Math.pow(-1,i)*(wareHouseWidth / 2 + 12),0,wareHouseHeight / 2 - 10 * j);
+            scene.add(pine.build());
+        }
+    }
 
-    var h = new holly(2);
-    scene.add(h.build());
+    for(var i=0;i<7;i++){
+        var pine = new pinetree(5,30,0);
+        pine.body.position.set(wareHouseWidth / 2 - 10 * i,0,wareHouseHeight / 2 + 12);
+        scene.add(pine.build());
+    }
 
+    var light = new THREE.PointLight( 0xffffff, 3, 60);
+    light.position.set( 0, 30, 0 );
+    scene.add( light );
 
+    var pointLightHelper = new THREE.PointLightHelper( light, 20);
+    scene.add( pointLightHelper );
+
+    // var h = new holly(2);
+    // scene.add(h.build());
 
     var animate = function () {
         requestAnimationFrame( animate );

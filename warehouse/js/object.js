@@ -282,11 +282,12 @@
         this.wallHeight = wallHeight;
         modelObject.call(this,0,0,0.5);
         this.extrudeSettings = {
+            curveSegments : 1,
             steps: 1,
             amount: this.depth,
             bevelEnabled: false,
             bevelSegments: 1,
-            bevelSize: 0,
+            bevelSize: 1,
             bevelThickness: 1
         };
         this.init();
@@ -295,45 +296,19 @@
         init : function(){
             this.material = this.material = new THREE.MeshLambertMaterial({
                 color : 0xCDBE70,
-                side : THREE.FrontSide,
                 wireframe : false
             });
             //仓库四周的墙
             var Shape_1 = new rectangleShape(this.sizeX,this.wallHeight).build(),
-                Shape_2 = new rectangleShape(this.sizeX,this.wallHeight).build(),
                 Shape_3 = new rectangleShape(this.sizeY,this.wallHeight).build(),
                 Shape_4 = new rectangleShape(this.sizeY,this.wallHeight).build();
             //添加正门
             var mainDoorHeight = 20;
-            var mainDoorFrame =  new rectanglePath(0,(mainDoorHeight-this.wallHeight+0.2)/2,25,mainDoorHeight);
-            Shape_1.holes.push(mainDoorFrame.build());
 
             //通风口
             var ventWidth = 5,
                 ventHeight = 3,
                 toTop = 5;
-            var vent_1 = new rectanglePath(this.sizeY/3,this.wallHeight/2-toTop,ventWidth,ventHeight);
-            Shape_3.holes.push(vent_1.build());
-            var vent_2 = new rectanglePath(this.sizeY/9,this.wallHeight/2-toTop,ventWidth,ventHeight);
-            Shape_3.holes.push(vent_2.build());
-            var vent_3 = new rectanglePath(-this.sizeY/9,this.wallHeight/2-toTop,ventWidth,ventHeight);
-            Shape_3.holes.push(vent_3.build());
-            var vent_4 = new rectanglePath(-this.sizeY/3,this.wallHeight/2-toTop,ventWidth,ventHeight);
-            Shape_3.holes.push(vent_4.build());
-
-            var vent_5 = new rectanglePath(this.sizeY/3,this.wallHeight/2-toTop,ventWidth,ventHeight);
-            Shape_4.holes.push(vent_5.build());
-            var vent_6 = new rectanglePath(this.sizeY/9,this.wallHeight/2-toTop,ventWidth,ventHeight);
-            Shape_4.holes.push(vent_6.build());
-            var vent_7 = new rectanglePath(-this.sizeY/9,this.wallHeight/2-toTop,ventWidth,ventHeight);
-            Shape_4.holes.push(vent_7.build());
-            var vent_8 = new rectanglePath(-this.sizeY/3,this.wallHeight/2-toTop,ventWidth,ventHeight);
-            Shape_4.holes.push(vent_8.build());
-
-            var vent_9 = new rectanglePath(this.sizeX/4,this.wallHeight/2-toTop,ventWidth,ventHeight);
-            Shape_2.holes.push(vent_9.build());
-            var vent_10 = new rectanglePath(-this.sizeX/4,this.wallHeight/2-toTop,ventWidth,ventHeight);
-            Shape_2.holes.push(vent_10.build());
 
             //监控室的窗窗
             var monitorWindowWidth = 7,
@@ -348,19 +323,142 @@
                 10-this.sizeY/2
             );
 
-            var wallGeometry_1 = new THREE.ExtrudeBufferGeometry(Shape_1,this.extrudeSettings);
-            wallGeometry_1.translate(0,this.wallHeight/2,-this.sizeY/2);
+            /**--   正门的墙 start   --**/
+            var wall_1_array = [],
+                wall_1_leftWidth = leftWidht  =  (this.sizeX - 25 ) / 2;
+            var wall_1_left = new THREE.BoxBufferGeometry(wall_1_leftWidth,this.wallHeight,this.depth,3,3);
+            wall_1_left.translate(this.sizeX / 2 - wall_1_leftWidth / 2 ,this.wallHeight / 2 ,0);
+            wall_1_array.push(wall_1_left);
 
-            var wallGeometry_2 = new THREE.ExtrudeBufferGeometry(Shape_2,this.extrudeSettings);
-            wallGeometry_2.translate(0,this.wallHeight/2,this.sizeY/2);
+            var wall_1_right = new THREE.BoxBufferGeometry(wall_1_leftWidth,this.wallHeight,this.depth,3,3);
+            wall_1_right.translate(wall_1_leftWidth / 2 - this.sizeX / 2,this.wallHeight / 2 ,0);
+            wall_1_array.push(wall_1_right);
 
-            var wallGeometry_3 = new THREE.ExtrudeBufferGeometry(Shape_3,this.extrudeSettings);
-            wallGeometry_3.rotateY(Math.PI/2);
-            wallGeometry_3.translate(-this.sizeX/2,this.wallHeight/2,0);
+            var wall_1_top = new THREE.BoxBufferGeometry(25,this.wallHeight - mainDoorHeight,this.depth,2,1);
+            wall_1_top.translate(0,this.wallHeight / 2 + mainDoorHeight / 2,0);
+            wall_1_array.push(wall_1_top);
 
-            var wallGeometry_4 = new THREE.ExtrudeBufferGeometry(Shape_4,this.extrudeSettings);
-            wallGeometry_4.rotateY(Math.PI/2);
-            wallGeometry_4.translate(this.sizeX/2,this.wallHeight/2,0);
+            var wall_1_Geometry = THREE.BufferGeometryUtils.mergeBufferGeometries(wall_1_array);
+            wall_1_Geometry.translate(0,0,-this.sizeY / 2 + this.depth / 2);
+            /**--   正门的墙 end   --**/
+
+            /**--   正门对面的墙 Start   --**/
+            var wall_2_array = [],
+                wall_2_bottomHeight = this.wallHeight - (toTop + ventHeight / 2),
+                wall_2_centerWidth1 = this.sizeX / 4 - ventWidth / 2,
+                wall_2_centerWidth2 = this.sizeX - wall_2_centerWidth1 * 2 - ventWidth * 2,
+                wall_2_topHeight = this.wallHeight - ventHeight - wall_2_bottomHeight;
+            var wall_2_bottom = new THREE.BoxBufferGeometry(this.sizeX,wall_2_bottomHeight,this.depth,5,3);
+            wall_2_array.push(wall_2_bottom);
+
+            var wall_2_center1 =new THREE.BoxBufferGeometry(wall_2_centerWidth1,ventHeight,this.depth);
+            wall_2_center1.translate(wall_2_centerWidth1 / 2 - this.sizeX / 2,wall_2_bottomHeight / 2 + ventHeight / 2,0);
+            wall_2_array.push(wall_2_center1);
+
+            var wall_2_center2 =new THREE.BoxBufferGeometry(wall_2_centerWidth1,ventHeight,this.depth);
+            wall_2_center2.translate(this.sizeX / 2 - wall_2_centerWidth1 / 2,wall_2_bottomHeight / 2 + ventHeight / 2,0);
+            wall_2_array.push(wall_2_center2);
+
+            var wall_2_center3 =new THREE.BoxBufferGeometry(wall_2_centerWidth2,ventHeight,this.depth,3,1);
+            wall_2_center3.translate(this.sizeX / 2 - wall_2_centerWidth2 / 2 - wall_2_centerWidth1 - ventWidth,wall_2_bottomHeight / 2 + ventHeight / 2,0);
+            wall_2_array.push(wall_2_center3);
+
+            var wall_2_top =new THREE.BoxBufferGeometry(this.sizeX,wall_2_topHeight,this.depth,5,1);
+            wall_2_top.translate(0,wall_2_bottomHeight / 2 + ventHeight + wall_2_topHeight / 2,0);
+            wall_2_array.push(wall_2_top);
+
+            var wall_2_Geometry = THREE.BufferGeometryUtils.mergeBufferGeometries(wall_2_array);
+            wall_2_Geometry.translate(0,wall_2_bottomHeight / 2,this.sizeY / 2 + 0.2);
+            /**--   正门对面的墙 end   --**/
+
+            /**--   正门右边的墙 start   --**/
+            var wall_3_array = [],
+                wall_3_bottomHeight = this.wallHeight - (toTop + ventHeight / 2),
+                wall_3_centerWidth1 = this.sizeY / 2 - this.sizeY / 3 - ventWidth / 2,
+                wall_3_centerWidth2 = this.sizeY / 2 - this.sizeY / 9 - ventWidth / 2 - wall_3_centerWidth1 - ventWidth,
+                wall_3_topHeight = this.wallHeight - ventHeight - wall_3_bottomHeight;
+            var wall_3_bottom = new THREE.BoxBufferGeometry(this.sizeY,wall_3_bottomHeight,this.depth,10,3);
+            wall_3_array.push(wall_3_bottom);
+
+            for(var i = 0;i < 2;i++){
+                var num = Math.pow(-1,i);
+                var wall_3_center1 = new THREE.BoxBufferGeometry(wall_3_centerWidth1,ventHeight,this.depth,2,3);
+                wall_3_center1.translate(num * (this.sizeY / 2 - wall_3_centerWidth1 / 2), wall_3_bottomHeight / 2 + ventHeight / 2,0);
+                wall_3_array.push(wall_3_center1);
+
+                var wall_3_center2 = new THREE.BoxBufferGeometry(wall_3_centerWidth2,ventHeight,this.depth,2,3);
+                wall_3_center2.translate(num * (this.sizeY / 2 - wall_3_centerWidth1 - ventWidth - wall_3_centerWidth2 / 2 ),
+                    wall_3_bottomHeight / 2 + ventHeight / 2,0);
+                wall_3_array.push(wall_3_center2);
+            }
+            var wall_3_center3 = new THREE.BoxBufferGeometry(wall_3_centerWidth2,ventHeight,this.depth,2,3);
+            wall_3_center3.translate(0, wall_3_bottomHeight / 2 + ventHeight / 2,0);
+            wall_3_array.push(wall_3_center3);
+
+            var wall_3_top = new THREE.BoxBufferGeometry(this.sizeY,wall_3_topHeight,this.depth,10,1);
+            wall_3_top.translate(0, wall_3_bottomHeight / 2 + ventHeight + wall_3_topHeight / 2,0);
+            wall_3_array.push(wall_3_top);
+
+            var wall_3_Geometry = THREE.BufferGeometryUtils.mergeBufferGeometries(wall_3_array);
+            wall_3_Geometry.rotateY(Math.PI / 2);
+            wall_3_Geometry.translate(0.2 -this.sizeX / 2 ,wall_3_bottomHeight / 2,0);
+            /**--   正门右边的墙 end   --**/
+
+
+            /**--   正门左边的墙 start   --**/
+            var wall_4_array = [],
+                wall_4_bottomWidth1 = this.sizeY - monitorWindowWidth / 2 - 10,
+                wall_4_bottomWidth2 = 10 - monitorWindowWidth / 2,
+                wall_4_bottomHeight = this.wallHeight - (toTop + ventHeight / 2),
+                wall_4_bottomheight2 = this.wallHeight/2 - 10 - 0.5,
+                wall_4_bottomheight3 = wall_4_bottomHeight - monitorWindowheight - wall_4_bottomheight2 - 1,
+                wall_4_centerWidth1 = this.sizeY / 2 - this.sizeY / 3 - ventWidth / 2,
+                wall_4_centerWidth2 = this.sizeY / 2 - this.sizeY / 9 - ventWidth / 2 - wall_4_centerWidth1 - ventWidth,
+                wall_4_topHeight = this.wallHeight - ventHeight - wall_4_bottomHeight;
+
+            var wall_4_bottomBack = new THREE.BoxBufferGeometry(wall_4_bottomWidth1,wall_3_bottomHeight,this.depth,10,3);
+            wall_4_bottomBack.translate(-this.sizeY /2 + wall_4_bottomWidth1 / 2,0,0);
+            wall_4_array.push(wall_4_bottomBack);
+
+            var wall_4_bottomFront = new THREE.BoxBufferGeometry(wall_4_bottomWidth2,wall_3_bottomHeight,this.depth,8,3);
+            wall_4_bottomFront.translate(this.sizeY /2 - wall_4_bottomWidth2 / 2,0,0);
+            wall_4_array.push(wall_4_bottomFront);
+
+            var wall_4_bottomFront_bottom = new THREE.BoxBufferGeometry(monitorWindowWidth, wall_4_bottomheight2,this.depth,2,1);
+            wall_4_bottomFront_bottom.translate(this.sizeY /2 - wall_4_bottomWidth2 - monitorWindowWidth / 2,
+                10-this.wallHeight / 2 - monitorWindowheight / 2,0);
+            wall_4_array.push(wall_4_bottomFront_bottom);
+
+            var wall_4_bottomFront_top = new THREE.BoxBufferGeometry(monitorWindowWidth, wall_4_bottomheight3,this.depth,2,1);
+            wall_4_bottomFront_top.translate(this.sizeY /2 - wall_4_bottomWidth2 - monitorWindowWidth / 2,
+                this.wallHeight / 2 - monitorWindowheight / 2 - 3.2,0);
+            wall_4_array.push(wall_4_bottomFront_top);
+
+            for(var i = 0;i < 2;i++){
+                var num = Math.pow(-1,i);
+                var wall_4_center1 = new THREE.BoxBufferGeometry(wall_4_centerWidth1,ventHeight,this.depth,2,3);
+                wall_4_center1.translate(num * (this.sizeY / 2 - wall_4_centerWidth1 / 2), wall_4_bottomHeight / 2 + ventHeight / 2,0);
+                wall_4_array.push(wall_4_center1);
+
+                var wall_4_center2 = new THREE.BoxBufferGeometry(wall_4_centerWidth2,ventHeight,this.depth,2,3);
+                wall_4_center2.translate(num * (this.sizeY / 2 - wall_4_centerWidth1 - ventWidth - wall_4_centerWidth2 / 2 ),
+                    wall_4_bottomHeight / 2 + ventHeight / 2,0);
+                wall_4_array.push(wall_4_center2);
+            }
+            var wall_4_center3 = new THREE.BoxBufferGeometry(wall_4_centerWidth2,ventHeight,this.depth,2,3);
+            wall_4_center3.translate(0, wall_4_bottomHeight / 2 + ventHeight / 2,0);
+            wall_4_array.push(wall_4_center3);
+
+            var wall_4_top = new THREE.BoxBufferGeometry(this.sizeY,wall_4_topHeight,this.depth,10,1);
+            wall_4_top.translate(0, wall_4_bottomHeight / 2 + ventHeight + wall_4_topHeight / 2,0);
+            wall_4_array.push(wall_4_top);
+
+
+            var wall_4_Geometry = THREE.BufferGeometryUtils.mergeBufferGeometries(wall_4_array);
+            wall_4_Geometry.rotateY(Math.PI / 2);
+            wall_4_Geometry.translate(this.sizeX / 2 + 0.2 ,wall_3_bottomHeight / 2,0);
+
+            /**--   正门左边的墙 end   --**/
 
             //监控室的墙
             var monitorRoomSize = 15,
@@ -435,10 +533,10 @@
             pillar_10.translate(this.sizeX/2-pillarWidth/2,this.wallHeight/2,-this.sizeY/4);
 
             var wallGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries([
-                wallGeometry_1,
-                wallGeometry_2,
-                wallGeometry_3,
-                wallGeometry_4,
+                wall_1_Geometry,
+                wall_2_Geometry,
+                wall_3_Geometry,
+                wall_4_Geometry,
                 monitorWallGeometry_1,
                 monitorWallGeometry_2,
                 monitorRoofGeometry,
@@ -456,7 +554,7 @@
                 bigGlassWindowSill
             ]);
             var wall = new THREE.Mesh(wallGeometry,this.material);
-            wall.castShadow = true;
+            // wall.castShadow = true;
 
             //监控室的大玻璃窗
             var glassWindow = new bigGlassWindow(bigGlassWinth+0.5,bigGlassHeight+0.5).build();
@@ -510,7 +608,7 @@
             var glassWindowGeometry = new THREE.BoxBufferGeometry(this.width,this.height,this.depth);
             var glassWindow = new THREE.Mesh(glassWindowGeometry,this.material);
             glassWindow.rotation.y = Math.PI/2;
-            glassWindow.castShadow = true;
+            // glassWindow.castShadow = true;
             this.body.add(glassWindow);
         }
     };
@@ -1002,7 +1100,6 @@
                 vane.position.set(0,i*height,0);
                 vaneGroup.add(vane);
             }
-            vaneGroup.castShadow = true;
             this.body.add(ventpipeFrame);
             this.body.add(vaneGroup);
         }
@@ -1097,6 +1194,9 @@
     };
     window.wareDoor  = wareDoor;
 
+    /**----------------------------------------------------------**/
+    /**                           松树                           **/
+    /**----------------------------------------------------------**/
     var pinetree = function(width,height,depth){
         modelObject.call(this,width,height,depth);
         this.plies = 5;
@@ -1107,7 +1207,7 @@
         init : function(){
             var leafMaterial = new THREE.MeshLambertMaterial({
                 color : 0x3c6b2e,
-                side : THREE.DoubleSide,
+                side : THREE.FrontSide,
                 flatShading : true,
                 wireframe:false
             });
@@ -1143,9 +1243,8 @@
 
             //树干
             var trunkMaterial = new THREE.MeshLambertMaterial({
-                color : 0x735b3a,
-                side : THREE.DoubleSide,
-                flatShading : true,
+                color : 0x392514,
+                side : THREE.FrontSide,
                 wireframe:false
             });
             var trunkGeometry = new THREE.CylinderBufferGeometry(
@@ -1168,7 +1267,6 @@
             var hollyMaterial = new THREE.MeshLambertMaterial({
                 color : 0x315d22,
                 side : THREE.DoubleSide,
-                flatShading : true,
                 wireframe:false
             });
             var hollyGeomotry = new THREE.DodecahedronGeometry(this.width,0);
@@ -1178,4 +1276,23 @@
         }
     };
     window.holly = holly;
+
+    /**----------------------------------------------------------**/
+    /**                             花盆                         **/
+    /**----------------------------------------------------------**/
+    var flowerpot = function(width,height){
+        modelObject.call(this,width,height,0);
+        this.edges = 6;
+        this.init();
+    };
+    flowerpot.prototype = {
+        init : function(){
+            var lowerpotMaterial = new THREE.MeshLambertMaterial({
+                color : 0x392514,
+                side : THREE.FrontSide,
+                wireframe:false
+            });
+        }
+    };
+    window.flowerpot = flowerpot;
 })(window);
