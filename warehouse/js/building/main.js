@@ -143,12 +143,16 @@ window.onload = function(){
         scene.add(pine.build());
     }
 
-    var light = new THREE.PointLight( 0xffffff, 3, 60);
-    light.position.set( 0, 30, 0 );
-    scene.add( light );
+    // var light = new THREE.PointLight( 0xffffff, 3, 60);
+    // light.position.set( 0, 30, 0 );
+    // scene.add( light );
+    //
+    // var pointLightHelper = new THREE.PointLightHelper( light, 30);
+    // scene.add( pointLightHelper );
 
-    var pointLightHelper = new THREE.PointLightHelper( light, 30);
-    scene.add( pointLightHelper );
+    var m_light = new monitorLight(0.1,0.1,0.1);
+    m_light.body.position.set(0,14,0);
+    scene.add(m_light.build());
 
     // var h = new holly(2);
     // scene.add(h.build());
