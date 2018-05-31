@@ -37,21 +37,21 @@ window.onload = function(){
     /**----------------------------------------------------------**/
     /**                          灯光                             **/
     /**----------------------------------------------------------**/
-    // var ambientLight = new THREE.AmbientLight( 0xffffff,0.9);
-    // scene.add(ambientLight);
+    var ambientLight = new THREE.AmbientLight( 0xffffff,0.9);
+    scene.add(ambientLight);
 
-    // var spotLight = new THREE.SpotLight( 0xffffff,1);
-    // spotLight.position.set( 0, 70, 0 );
-    //
-    // spotLight.castShadow = true;
-    //
-    // spotLight.shadow.mapSize.width = 1024;
-    // spotLight.shadow.mapSize.height = 1024;
-    //
-    // spotLight.shadow.camera.near = 500;
-    // spotLight.shadow.camera.far = 1000;
-    // spotLight.shadow.camera.fov = 30;
-    // scene.add( spotLight );
+    var spotLight = new THREE.SpotLight( 0xffffff,1);
+    spotLight.position.set( 0, 70, 0 );
+
+    spotLight.castShadow = true;
+
+    spotLight.shadow.mapSize.width = 1024;
+    spotLight.shadow.mapSize.height = 1024;
+
+    spotLight.shadow.camera.near = 500;
+    spotLight.shadow.camera.far = 1000;
+    spotLight.shadow.camera.fov = 30;
+    scene.add( spotLight );
     //
     // var spotLightHelper = new THREE.SpotLightHelper( spotLight );
     // scene.add( spotLightHelper );
@@ -69,7 +69,7 @@ window.onload = function(){
     /**                          地面                             **/
     /**----------------------------------------------------------**/
     var wareFloor = new floor(wareHouseWidth,wareHouseHeight);
-    scene.add(wareFloor.build());
+    // scene.add(wareFloor.build());
 
     /**----------------------------------------------------------**/
     /**                         墙体的建造                       **/
@@ -150,9 +150,13 @@ window.onload = function(){
     // var pointLightHelper = new THREE.PointLightHelper( light, 30);
     // scene.add( pointLightHelper );
 
-    var m_light = new monitorLight(0.1,0.1,0.1);
-    m_light.body.position.set(0,14,0);
+    var m_light = new monitorLight(0.1,0.05,0.1);
+    m_light.body.position.set(wareHouseWidth / 2 - 7.5,19, 7.5 - wareHouseHeight / 2);
     scene.add(m_light.build());
+    var pointLightHelper = new THREE.PointLightHelper( m_light.light, 14);
+    scene.add(pointLightHelper);
+
+    scene.add(new monitorRoom().build());
 
     // var h = new holly(2);
     // scene.add(h.build());
@@ -166,6 +170,7 @@ window.onload = function(){
     };
     animate();
 };
+
 
 
 
