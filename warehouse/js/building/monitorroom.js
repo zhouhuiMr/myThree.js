@@ -6,7 +6,7 @@
         this.material = this.material = new THREE.MeshLambertMaterial({
             color : 0xCDBE70,
             side : THREE.DoubleSide,
-            wireframe : false
+            wireframe : true
         });
         this.init();
     };
@@ -73,10 +73,32 @@
             var Wall_4_top = new THREE.BoxBufferGeometry(this.width,this.height - monitorWindowheight - distanceToFloor,this.wallDepth,5,2);
             Wall_4_top.rotateY(-Math.PI / 2);
             Wall_4_top.translate(this.width / 2,(this.height + monitorWindowheight + distanceToFloor) / 2 ,0);
+
+            var Wall_4_left = new THREE.BoxBufferGeometry((this.width - monitorWindowWidth ) / 2,monitorWindowheight + distanceToFloor,this.wallDepth,2,3);
+            Wall_4_left.rotateY(-Math.PI / 2);
+            Wall_4_left.translate(this.width / 2,(monitorWindowheight + distanceToFloor) / 2, (this.width + monitorWindowWidth) / 4);
+
+            var Wall_4_right = new THREE.BoxBufferGeometry((this.width - monitorWindowWidth ) / 2,monitorWindowheight + distanceToFloor,this.wallDepth,2,3);
+            Wall_4_right.rotateY(-Math.PI / 2);
+            Wall_4_right.translate(this.width / 2,(monitorWindowheight + distanceToFloor) / 2, -(this.width + monitorWindowWidth) / 4);
+
+            var Wall_4_bottom = new THREE.BoxBufferGeometry(monitorWindowWidth,distanceToFloor,this.wallDepth,3,1);
+            Wall_4_bottom.rotateY(-Math.PI / 2);
+            Wall_4_bottom.translate(this.width / 2,distanceToFloor/ 2, 0);
+
             var monitorWallGeometry_4 = THREE.BufferGeometryUtils.mergeBufferGeometries([
-                Wall_4_top
+                Wall_4_top,
+                Wall_4_left,
+                Wall_4_right,
+                Wall_4_bottom
             ]);
+            monitorWallGeometry_4.translate(-0.25,0,0);
             /**--------           监控室有玻璃的墙  end            ---------**/
+
+            /**--------           监控室的屋顶 start            ---------**/
+            
+            /**--------           监控室的屋顶  end            ---------**/
+
 
             var wallGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries([
                 monitorWallGeometry_1,
