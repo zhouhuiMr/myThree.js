@@ -21,11 +21,13 @@ window.onload = function(){
     scene.background = new THREE.Color( 0x000000);
 
     var camera = new THREE.PerspectiveCamera(75, 1, 1, 200); //相机的设置
-    camera.position.set( 0, -1, 0);
+
+    var stats = new Stats();
+    document.body.appendChild( stats.dom );
 
 
     //渲染的方式
-    var renderer = new THREE.WebGLRenderer({ antialias: true });
+    var renderer = new THREE.WebGLRenderer({ antialias: false });
     renderer.setPixelRatio( window.devicePixelRatio);
     renderer.setSize(SceneWidth, SceneHeight);
     if(isUseShadow){
@@ -37,24 +39,56 @@ window.onload = function(){
     /**----------------------------------------------------------**/
     /**                          灯光                             **/
     /**----------------------------------------------------------**/
-    var ambientLight = new THREE.AmbientLight( 0xffffff,0.9);
+    var ambientLight = new THREE.AmbientLight( 0xffffff,0.2);
     scene.add(ambientLight);
 
-    var spotLight = new THREE.SpotLight( 0xffffff,1);
-    spotLight.position.set( 0, 70, 0 );
-
-    spotLight.castShadow = true;
-
-    spotLight.shadow.mapSize.width = 1024;
-    spotLight.shadow.mapSize.height = 1024;
-
-    spotLight.shadow.camera.near = 500;
-    spotLight.shadow.camera.far = 1000;
-    spotLight.shadow.camera.fov = 30;
-    scene.add( spotLight );
+    // var spotLight = new THREE.SpotLight( 0xffffff,1);
+    // spotLight.position.set( 0, 70, 0 );
+    //
+    // spotLight.castShadow = true;
+    //
+    // spotLight.shadow.mapSize.width = 1024;
+    // spotLight.shadow.mapSize.height = 1024;
+    //
+    // spotLight.shadow.camera.near = 500;
+    // spotLight.shadow.camera.far = 1000;
+    // spotLight.shadow.camera.fov = 30;
+    // scene.add( spotLight );
     //
     // var spotLightHelper = new THREE.SpotLightHelper( spotLight );
     // scene.add( spotLightHelper );
+    var light = new THREE.DirectionalLight( 0xffffff, 1);
+    scene.add( light );
+
+    var  sky = new THREE.Sky();
+    sky.scale.setScalar( 450);
+    scene.add( sky );
+    var uniforms = sky.material.uniforms;
+
+    var sunSphere = new THREE.Mesh(
+        new THREE.SphereBufferGeometry( 2000, 16, 8 ),
+        new THREE.MeshBasicMaterial( { color: 0xffffff } )
+    );
+    sunSphere.position.y = - 400;
+    sunSphere.visible = true;
+    scene.add( sunSphere );
+
+    var theta = Math.PI * ( -0.1 - 0.5 );
+    var phi = 2 * Math.PI * ( 0.25 - 0.5 );
+    var distance = 400;
+
+    sunSphere.position.x = distance * Math.cos( phi );
+    sunSphere.position.y = distance * Math.sin( phi ) * Math.sin( theta );
+    sunSphere.position.z = distance * Math.sin( phi ) * Math.cos( theta );
+
+    light.position.x = distance * Math.cos( phi );
+    light.position.y = distance * Math.sin( phi ) * Math.sin( theta );
+    light.position.z = distance * Math.sin( phi ) * Math.cos( theta );
+
+
+    uniforms.sunPosition.value.copy( sunSphere.position );
+
+
 
     /**----------------------------------------------------------**/
     /**                        辅助功能                          **/
@@ -62,14 +96,23 @@ window.onload = function(){
     var axesHelper = new THREE.AxesHelper(wareHouseWidth);
     scene.add( axesHelper );
 
-    var controls = new controller(scene,camera);
+    var controls = null;
+    if(true){
+        camera.position.set( 0, -1, 0 );
+        document.getElementById("blocker").style.display = "block";
+        controls = new controller1(scene,camera);
+    }else{
+        camera.position.set( 10, 40, 0 );
+        controls = new controller2(camera,renderer.domElement);
+
+    }
 
     var warHouse = new THREE.Group();
     /**----------------------------------------------------------**/
     /**                          地面                             **/
     /**----------------------------------------------------------**/
     var wareFloor = new floor(wareHouseWidth,wareHouseHeight);
-    // scene.add(wareFloor.build());
+    scene.add(wareFloor.build());
 
     /**----------------------------------------------------------**/
     /**                         墙体的建造                       **/
@@ -150,13 +193,17 @@ window.onload = function(){
     // var pointLightHelper = new THREE.PointLightHelper( light, 30);
     // scene.add( pointLightHelper );
 
-    var m_light = new monitorLight(0.1,0.05,0.1);
-    m_light.body.position.set(wareHouseWidth / 2 - 7.5,19, 7.5 - wareHouseHeight / 2);
-    scene.add(m_light.build());
-    var pointLightHelper = new THREE.PointLightHelper( m_light.light, 14);
-    scene.add(pointLightHelper);
+    // var m_light = new monitorLight(0.1,0.05,0.1);
+    // m_light.body.position.set(wareHouseWidth / 2 - 7.5,19, 7.5 - wareHouseHeight / 2);
+    // scene.add(m_light.build());
+    // var pointLightHelper = new THREE.PointLightHelper( m_light.light, 14);
+    // scene.add(pointLightHelper);
+    var monitor = new monitorRoom();
+    monitor.body.position.set((wareHouseWidth - monitor.width) / 2 + 0.45,0 ,(monitor.width -wareHouseHeight) / 2);
+    scene.add(monitor.build());
 
-    scene.add(new monitorRoom().build());
+    // var pointLightHelper = new THREE.PointLightHelper(monitor.roofLight.light, monitor.roofLight.lightdistince);
+    // scene.add(pointLightHelper);
 
     // var h = new holly(2);
     // scene.add(h.build());
@@ -167,6 +214,7 @@ window.onload = function(){
         controls.move();
 
         renderer.render(scene, camera);
+        stats.update();
     };
     animate();
 };

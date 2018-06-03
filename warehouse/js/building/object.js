@@ -2,7 +2,7 @@
     /**----------------------------------------------------------**/
     /**  https://threejs.org/examples/#misc_controls_pointerlock **/
     /**----------------------------------------------------------**/
-    var controller = function(scene,camera){
+    var controller1 = function(scene,camera){
         this.scene = scene;
         this.camera = camera;
         this.controls = null;
@@ -22,7 +22,7 @@
 
         this.init();
     };
-    controller.prototype = {
+    controller1.prototype = {
         init : function(){
             this.controls = new THREE.PointerLockControls( this.camera );
             this.scene.add( this.controls.getObject());
@@ -138,7 +138,36 @@
             document.addEventListener( 'webkitpointerlockchange', pointerlockchange, false );
         }
     };
-    window.controller = controller;
+    window.controller1 = controller1;
+
+    var controller2 = function(camera,dom){
+        this.camera = camera;
+        this.dom = dom;
+        this.controls = null;
+        this.init();
+    };
+    controller2.prototype = {
+        init : function(){
+            this.controls = new THREE.OrbitControls(this.camera,this.dom);
+            this.controls.enableDamping = true;
+            this.controls.dampingFactor = 1;
+            this.controls.screenSpacePanning = false;
+            this.controls.minDistance = 20;
+            this.controls.maxDistance = 80;
+            this.controls.maxPolarAngle = Math.PI / 2;
+            this.controls.keyPanSpeed = 15;
+            this.controls.keys = {
+                LEFT: 65, //left arrow
+                UP: 87, // up arrow
+                RIGHT: 68, // right arrow
+                BOTTOM: 83 // down arrow
+            }
+        },
+        move : function(){
+            this.controls.update();
+        }
+    };
+    window.controller2 = controller2;
 
     /**----------------------------------------------------------**/
     /**                        物体模型的父类                    **/
@@ -273,12 +302,6 @@
                 side : THREE.FrontSide,
                 wireframe : false
             });
-            //监控室地面材质
-            var monitorFloorMaterial = new THREE.MeshPhongMaterial({
-                color : 0x78562b,
-                side : THREE.FrontSide,
-                wireframe : false
-            });
             //仓库外面的地面材质
             var outFloorMaterial = new THREE.MeshLambertMaterial({
                 color : 0x656b72,
@@ -287,21 +310,15 @@
             });
             //监控室地面
             var monitorWidth = 15;
-            var monitorFloorGeometry = new THREE.PlaneBufferGeometry(monitorWidth,monitorWidth);
-            monitorFloorGeometry.rotateX( - Math.PI / 2 );
-            var monitorFloor = new THREE.Mesh(monitorFloorGeometry,monitorFloorMaterial);
-            monitorFloor.receiveShadow = true;
-            monitorFloor.position.set(this.width / 2 - monitorWidth / 2,0,monitorWidth / 2 - this.height / 2);
-            this.body.add(monitorFloor);
 
             //仓库的地面
-            var floorWidth = this.width - monitorWidth;
+            var floorWidth = this.width - monitorWidth + 0.3;
             var ware_1_FloorGeometry = new THREE.PlaneBufferGeometry(floorWidth,monitorWidth,3,1);
             ware_1_FloorGeometry.rotateX( - Math.PI / 2 );
-            ware_1_FloorGeometry.translate(-monitorWidth / 2,0,monitorWidth / 2 - this.height / 2 + 0.5);
-            var ware_2_FloorGeometry = new THREE.PlaneBufferGeometry(this.width,this.height - monitorWidth - 0.2,4,5);
+            ware_1_FloorGeometry.translate(0.3-monitorWidth / 2,0,monitorWidth / 2 - this.height / 2 + 0.5);
+            var ware_2_FloorGeometry = new THREE.PlaneBufferGeometry(this.width,this.height - monitorWidth + 0.1,4,5);
             ware_2_FloorGeometry.rotateX( - Math.PI / 2 );
-            ware_2_FloorGeometry.translate(0,0,monitorWidth / 2 + 0.3);
+            ware_2_FloorGeometry.translate(0,0,monitorWidth / 2 - 0.1);
             var wareFloorGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries([
                 ware_1_FloorGeometry,
                 ware_2_FloorGeometry
@@ -341,15 +358,12 @@
     };
     wall.prototype = {
         init : function(){
-            this.material = this.material = new THREE.MeshLambertMaterial({
+            this.material = new THREE.MeshLambertMaterial({
                 color : 0xCDBE70,
                 side : THREE.DoubleSide,
                 wireframe : false
             });
-            //仓库四周的墙
-            var Shape_1 = new rectangleShape(this.sizeX,this.wallHeight).build(),
-                Shape_3 = new rectangleShape(this.sizeY,this.wallHeight).build(),
-                Shape_4 = new rectangleShape(this.sizeY,this.wallHeight).build();
+
             //添加正门
             var mainDoorHeight = 20;
 
@@ -359,17 +373,8 @@
                 toTop = 5;
 
             //监控室的窗窗
-            var monitorWindowWidth = 7,
-                monitorWindowheight = 9;
-            var monitorWindow= new rectanglePath(this.sizeY/2-10,10-this.wallHeight/2,monitorWindowWidth,monitorWindowheight);
-            Shape_4.holes.push(monitorWindow.build());
-            //监控室的窗台
-            var monitorWindowSill = new THREE.BoxBufferGeometry(1,1,monitorWindowWidth);
-            monitorWindowSill.translate(
-                this.sizeX/2,
-                5,
-                10-this.sizeY/2
-            );
+            var monitorWidth = 15,
+                monittorHeight = 20;
 
             /**--   正门的墙 start   --**/
             var wall_1_array = [],
@@ -381,15 +386,15 @@
             wall_1_lefttop.translate(this.sizeX / 2 - wall_1_leftWidth / 2 ,this.wallHeight / 2 + 10 ,0);
             wall_1_array.push(wall_1_lefttop);
 
-            var wall_1_leftbottom = new THREE.BoxBufferGeometry(wall_1_leftWidth-15,20,this.depth,1,1);
-            wall_1_leftbottom.translate(this.sizeX / 2 - 15 - (wall_1_leftWidth-15) / 2,10 ,0);
+            var wall_1_leftbottom = new THREE.BoxBufferGeometry(wall_1_leftWidth-15 + 0.5,20,this.depth,1,1);
+            wall_1_leftbottom.translate(this.sizeX / 2 - 15 - (wall_1_leftWidth-15 -0.5) / 2,10 ,0);
             wall_1_array.push(wall_1_leftbottom);
 
             var wall_1_right = new THREE.BoxBufferGeometry(wall_1_leftWidth,this.wallHeight,this.depth,3,3);
             wall_1_right.translate(wall_1_leftWidth / 2 - this.sizeX / 2,this.wallHeight / 2 ,0);
             wall_1_array.push(wall_1_right);
 
-            var wall_1_top = new THREE.BoxBufferGeometry(25,this.wallHeight - mainDoorHeight,this.depth,2,1);
+            var wall_1_top = new THREE.BoxBufferGeometry(25,this.wallHeight - mainDoorHeight,this.depth,4,1);
             wall_1_top.translate(0,this.wallHeight / 2 + mainDoorHeight / 2,0);
             wall_1_array.push(wall_1_top);
 
@@ -403,22 +408,22 @@
                 wall_2_centerWidth1 = this.sizeX / 4 - ventWidth / 2,
                 wall_2_centerWidth2 = this.sizeX - wall_2_centerWidth1 * 2 - ventWidth * 2,
                 wall_2_topHeight = this.wallHeight - ventHeight - wall_2_bottomHeight;
-            var wall_2_bottom = new THREE.BoxBufferGeometry(this.sizeX,wall_2_bottomHeight,this.depth,5,3);
+            var wall_2_bottom = new THREE.BoxBufferGeometry(this.sizeX,wall_2_bottomHeight,this.depth,10,3,1);
             wall_2_array.push(wall_2_bottom);
 
-            var wall_2_center1 =new THREE.BoxBufferGeometry(wall_2_centerWidth1,ventHeight,this.depth);
+            var wall_2_center1 =new THREE.BoxBufferGeometry(wall_2_centerWidth1,ventHeight,this.depth,2,1,1);
             wall_2_center1.translate(wall_2_centerWidth1 / 2 - this.sizeX / 2,wall_2_bottomHeight / 2 + ventHeight / 2,0);
             wall_2_array.push(wall_2_center1);
 
-            var wall_2_center2 =new THREE.BoxBufferGeometry(wall_2_centerWidth1,ventHeight,this.depth);
+            var wall_2_center2 =new THREE.BoxBufferGeometry(wall_2_centerWidth1,ventHeight,this.depth,2,1,1);
             wall_2_center2.translate(this.sizeX / 2 - wall_2_centerWidth1 / 2,wall_2_bottomHeight / 2 + ventHeight / 2,0);
             wall_2_array.push(wall_2_center2);
 
-            var wall_2_center3 =new THREE.BoxBufferGeometry(wall_2_centerWidth2,ventHeight,this.depth,3,1);
+            var wall_2_center3 =new THREE.BoxBufferGeometry(wall_2_centerWidth2,ventHeight,this.depth,3,1,1);
             wall_2_center3.translate(this.sizeX / 2 - wall_2_centerWidth2 / 2 - wall_2_centerWidth1 - ventWidth,wall_2_bottomHeight / 2 + ventHeight / 2,0);
             wall_2_array.push(wall_2_center3);
 
-            var wall_2_top =new THREE.BoxBufferGeometry(this.sizeX,wall_2_topHeight,this.depth,5,1);
+            var wall_2_top =new THREE.BoxBufferGeometry(this.sizeX,wall_2_topHeight,this.depth,10,1);
             wall_2_top.translate(0,wall_2_bottomHeight / 2 + ventHeight + wall_2_topHeight / 2,0);
             wall_2_array.push(wall_2_top);
 
@@ -437,16 +442,16 @@
 
             for(var i = 0;i < 2;i++){
                 var num = Math.pow(-1,i);
-                var wall_3_center1 = new THREE.BoxBufferGeometry(wall_3_centerWidth1,ventHeight,this.depth,1,1);
+                var wall_3_center1 = new THREE.BoxBufferGeometry(wall_3_centerWidth1,ventHeight,this.depth,2,1);
                 wall_3_center1.translate(num * (this.sizeY / 2 - wall_3_centerWidth1 / 2), wall_3_bottomHeight / 2 + ventHeight / 2,0);
                 wall_3_array.push(wall_3_center1);
 
-                var wall_3_center2 = new THREE.BoxBufferGeometry(wall_3_centerWidth2,ventHeight,this.depth,1,1);
+                var wall_3_center2 = new THREE.BoxBufferGeometry(wall_3_centerWidth2,ventHeight,this.depth,2,1);
                 wall_3_center2.translate(num * (this.sizeY / 2 - wall_3_centerWidth1 - ventWidth - wall_3_centerWidth2 / 2 ),
                     wall_3_bottomHeight / 2 + ventHeight / 2,0);
                 wall_3_array.push(wall_3_center2);
             }
-            var wall_3_center3 = new THREE.BoxBufferGeometry(wall_3_centerWidth2,ventHeight,this.depth,1,1);
+            var wall_3_center3 = new THREE.BoxBufferGeometry(wall_3_centerWidth2,ventHeight,this.depth,2,1);
             wall_3_center3.translate(0, wall_3_bottomHeight / 2 + ventHeight / 2,0);
             wall_3_array.push(wall_3_center3);
 
@@ -462,11 +467,8 @@
 
             /**--   正门左边的墙 start   --**/
             var wall_4_array = [],
-                wall_4_bottomWidth1 = this.sizeY - monitorWindowWidth / 2 - 10,
-                wall_4_bottomWidth2 = 10 - monitorWindowWidth / 2,
+                wall_4_bottomWidth1 = this.sizeY - monitorWidth,
                 wall_4_bottomHeight = this.wallHeight - (toTop + ventHeight / 2),
-                wall_4_bottomheight2 = this.wallHeight/2 - 10 - 0.5,
-                wall_4_bottomheight3 = wall_4_bottomHeight - monitorWindowheight - wall_4_bottomheight2 - 1,
                 wall_4_centerWidth1 = this.sizeY / 2 - this.sizeY / 3 - ventWidth / 2,
                 wall_4_centerWidth2 = this.sizeY / 2 - this.sizeY / 9 - ventWidth / 2 - wall_4_centerWidth1 - ventWidth,
                 wall_4_topHeight = this.wallHeight - ventHeight - wall_4_bottomHeight;
@@ -475,27 +477,13 @@
             wall_4_bottomBack.translate(-this.sizeY /2 + wall_4_bottomWidth1 / 2,0,0);
             wall_4_array.push(wall_4_bottomBack);
 
-            var wall_4_bottomFront = new THREE.BoxBufferGeometry(wall_4_bottomWidth2,wall_3_bottomHeight,this.depth,1,2);
-            wall_4_bottomFront.translate(this.sizeY /2 - wall_4_bottomWidth2 / 2,0,0);
-            wall_4_array.push(wall_4_bottomFront);
-
-            var wall_4_bottomFront_bottom = new THREE.BoxBufferGeometry(monitorWindowWidth, wall_4_bottomheight2,this.depth,2,1);
-            wall_4_bottomFront_bottom.translate(this.sizeY /2 - wall_4_bottomWidth2 - monitorWindowWidth / 2,
-                10-this.wallHeight / 2 - monitorWindowheight / 2,0);
-            wall_4_array.push(wall_4_bottomFront_bottom);
-
-            var wall_4_bottomFront_top = new THREE.BoxBufferGeometry(monitorWindowWidth, wall_4_bottomheight3,this.depth,2,1);
-            wall_4_bottomFront_top.translate(this.sizeY /2 - wall_4_bottomWidth2 - monitorWindowWidth / 2,
-                this.wallHeight / 2 - monitorWindowheight / 2 - 3.2,0);
-            wall_4_array.push(wall_4_bottomFront_top);
-
             for(var i = 0;i < 2;i++){
                 var num = Math.pow(-1,i);
-                var wall_4_center1 = new THREE.BoxBufferGeometry(wall_4_centerWidth1,ventHeight,this.depth,1,1);
+                var wall_4_center1 = new THREE.BoxBufferGeometry(wall_4_centerWidth1,ventHeight,this.depth,2,1);
                 wall_4_center1.translate(num * (this.sizeY / 2 - wall_4_centerWidth1 / 2), wall_4_bottomHeight / 2 + ventHeight / 2,0);
                 wall_4_array.push(wall_4_center1);
 
-                var wall_4_center2 = new THREE.BoxBufferGeometry(wall_4_centerWidth2,ventHeight,this.depth,1,1);
+                var wall_4_center2 = new THREE.BoxBufferGeometry(wall_4_centerWidth2,ventHeight,this.depth,2,1);
                 wall_4_center2.translate(num * (this.sizeY / 2 - wall_4_centerWidth1 - ventWidth - wall_4_centerWidth2 / 2 ),
                     wall_4_bottomHeight / 2 + ventHeight / 2,0);
                 wall_4_array.push(wall_4_center2);
@@ -508,6 +496,14 @@
             wall_4_top.translate(0, wall_4_bottomHeight / 2 + ventHeight + wall_4_topHeight / 2,0);
             wall_4_array.push(wall_4_top);
 
+            var wall_4_frontcenter = new THREE.BoxBufferGeometry(monitorWidth,
+                this.wallHeight - monittorHeight - ventHeight - wall_4_topHeight,
+                this.depth,2,1);
+            wall_4_frontcenter.translate(
+                (this.sizeY - monitorWidth) / 2,
+                monittorHeight / 2,0);
+            wall_4_array.push(wall_4_frontcenter);
+
 
             var wall_4_Geometry = THREE.BufferGeometryUtils.mergeBufferGeometries(wall_4_array);
             wall_4_Geometry.rotateY(Math.PI / 2);
@@ -515,83 +511,31 @@
 
             /**--   正门左边的墙 end   --**/
 
-            //监控室的墙
-            var monitorRoomSize = 15,
-                monitorRoomHeight = 20;
-            var monitorWallShape_1 = new rectangleShape(monitorRoomSize,monitorRoomHeight).build(),
-                monitorWallShape_2 = new rectangleShape(monitorRoomSize,monitorRoomHeight).build();
-            //监控室的门
-            var monitorDoorHeight = 12,
-                monitorDoorwidth = 4;
-            var monitorDoor = new rectanglePath(5-monitorRoomSize/2,(monitorDoorHeight-monitorRoomHeight+0.2)/2,monitorDoorwidth,monitorDoorHeight);
-            monitorWallShape_1.holes.push(monitorDoor.build());
-            //大窗户
-            var bigGlassWinth = 10,
-                bigGlassHeight = 6;
-            var bigGlassWindowFrame = new rectanglePath(0,8-monitorRoomHeight/2,bigGlassWinth,bigGlassHeight);
-            monitorWallShape_2.holes.push(bigGlassWindowFrame.build());
-            //大窗户窗台
-            var bigGlassWindowSill = new THREE.BoxBufferGeometry(2,1,10);
-            bigGlassWindowSill.translate(
-                this.sizeX/2-monitorRoomSize,
-                4.5,
-                (monitorRoomSize-this.sizeY)/2
-            );
-
-            var monitorWallGeometry_1 = new THREE.ExtrudeBufferGeometry(monitorWallShape_1,this.extrudeSettings);
-            monitorWallGeometry_1.translate(
-                (this.sizeX-monitorRoomSize)/2,
-                monitorRoomHeight/2,
-                monitorRoomSize-this.sizeY/2
-            );
-            var monitorWallGeometry_2 = new THREE.ExtrudeBufferGeometry(monitorWallShape_2,this.extrudeSettings);
-            monitorWallGeometry_2.rotateY(Math.PI/2);
-            monitorWallGeometry_2.translate(
-                this.sizeX/2-monitorRoomSize,
-                monitorRoomHeight/2,
-                (monitorRoomSize-this.sizeY)/2
-            );
-            //监控室的屋顶
-            var monitorRoofGeometry = new THREE.BoxBufferGeometry(monitorRoomSize+1,monitorRoomSize+1,1);
-            monitorRoofGeometry.rotateX(-Math.PI/2);
-            monitorRoofGeometry.translate(
-                (this.sizeX-monitorRoomSize+0.2)/2,
-                monitorRoomHeight-0.5,
-                (monitorRoomSize-this.sizeY+1)/2
-            );
-            //监控室的墙
-            var monitorWallGeometry_3 = new THREE.BoxBufferGeometry(monitorRoomSize,monitorRoomHeight,0.2,5,6);
-            monitorWallGeometry_3.translate(
-                (this.sizeX-monitorRoomSize)/2,
-                monitorRoomHeight / 2,
-                (0.2-this.sizeY)/2
-            );
-
             //柱子
             var pillarWidth = 1,
                 pillarHeight = 3;
-            var pillar_1 = new THREE.BoxBufferGeometry(pillarWidth,this.wallHeight,2,1,3);
+            var pillar_1 = new THREE.BoxBufferGeometry(pillarWidth,this.wallHeight,2,1,5);
             pillar_1.translate(this.sizeX/2-pillarWidth/2,this.wallHeight/2,1-this.sizeY/2);
-            var pillar_2 = new THREE.BoxBufferGeometry(pillarWidth,this.wallHeight,2,1,3);
+            var pillar_2 = new THREE.BoxBufferGeometry(pillarWidth,this.wallHeight,2,1,5);
             pillar_2.translate(pillarWidth/2-this.sizeX/2,this.wallHeight/2,1-this.sizeY/2);
 
-            var pillar_3 = new THREE.BoxBufferGeometry(pillarWidth,this.wallHeight,2,1,3);
+            var pillar_3 = new THREE.BoxBufferGeometry(pillarWidth,this.wallHeight,2,1,5);
             pillar_3.translate(this.sizeX/2-pillarWidth/2,this.wallHeight/2,this.sizeY/2 - 1);
-            var pillar_4 = new THREE.BoxBufferGeometry(pillarWidth,this.wallHeight,2,1,3);
+            var pillar_4 = new THREE.BoxBufferGeometry(pillarWidth,this.wallHeight,2,1,5);
             pillar_4.translate(pillarWidth/2-this.sizeX/2,this.wallHeight/2,this.sizeY/2 - 1);
 
-            var pillar_5 = new THREE.BoxBufferGeometry(pillarWidth,this.wallHeight,pillarHeight,1,3);
+            var pillar_5 = new THREE.BoxBufferGeometry(pillarWidth,this.wallHeight,pillarHeight,1,5);
             pillar_5.translate(pillarWidth/2-this.sizeX/2,this.wallHeight/2,this.sizeY/4);
-            var pillar_6 = new THREE.BoxBufferGeometry(pillarWidth,this.wallHeight,pillarHeight,1,3);
+            var pillar_6 = new THREE.BoxBufferGeometry(pillarWidth,this.wallHeight,pillarHeight,1,5);
             pillar_6.translate(pillarWidth/2-this.sizeX/2,this.wallHeight/2,0);
-            var pillar_7 = new THREE.BoxBufferGeometry(pillarWidth,this.wallHeight,pillarHeight,1,3);
+            var pillar_7 = new THREE.BoxBufferGeometry(pillarWidth,this.wallHeight,pillarHeight,1,5);
             pillar_7.translate(pillarWidth/2-this.sizeX/2,this.wallHeight/2,-this.sizeY/4);
 
-            var pillar_8 = new THREE.BoxBufferGeometry(pillarWidth,this.wallHeight,pillarHeight,1,3);
+            var pillar_8 = new THREE.BoxBufferGeometry(pillarWidth,this.wallHeight,pillarHeight,1,5);
             pillar_8.translate(this.sizeX/2-pillarWidth/2,this.wallHeight/2,this.sizeY/4);
-            var pillar_9 = new THREE.BoxBufferGeometry(pillarWidth,this.wallHeight,pillarHeight,1,3);
+            var pillar_9 = new THREE.BoxBufferGeometry(pillarWidth,this.wallHeight,pillarHeight,1,5);
             pillar_9.translate(this.sizeX/2-pillarWidth/2,this.wallHeight/2,0);
-            var pillar_10 = new THREE.BoxBufferGeometry(pillarWidth,this.wallHeight,pillarHeight,1,3);
+            var pillar_10 = new THREE.BoxBufferGeometry(pillarWidth,this.wallHeight,pillarHeight,1,5);
             pillar_10.translate(this.sizeX/2-pillarWidth/2,this.wallHeight/2,-this.sizeY/4);
 
             var wallGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries([
@@ -608,274 +552,17 @@
                 pillar_7,
                 pillar_8,
                 pillar_9,
-                pillar_10,
-                monitorWindowSill,
-                bigGlassWindowSill
+                pillar_10
             ]);
             var wall = new THREE.Mesh(wallGeometry,this.material);
 
-            var monitorWallGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries([
-                monitorWallGeometry_1,
-                monitorWallGeometry_2,
-                monitorRoofGeometry,
-                monitorWallGeometry_3
-            ]);
-            var monitor = new THREE.Mesh(monitorWallGeometry,this.material);
-            // wall.castShadow = true;
-
-            //监控室的大玻璃窗
-            var glassWindow = new bigGlassWindow(bigGlassWinth+0.5,bigGlassHeight+0.5).build();
-            glassWindow.position.set(
-                this.sizeX/2-monitorRoomSize+0.2,
-                8,
-                (monitorRoomSize-this.sizeY)/2
-            );
-
-            //普通的窗户
-            var sashedWindow = new twoSashedWindow(monitorWindowWidth,monitorWindowheight).build();
-            sashedWindow.rotation.y = Math.PI / 2;
-            sashedWindow.position.set(
-                this.sizeX/2 - 0.1,
-                10,
-                10-this.sizeY/2
-            );
-
-            //监控室的门
-            var door = new oneSashedDoor(monitorDoorwidth,monitorDoorHeight,this.depth).build();
-            door.position.set(
-                this.sizeX/2 - monitorRoomSize +5 - monitorDoorwidth / 2,
-                monitorDoorHeight / 2 + 0.1,
-                monitorRoomSize-this.sizeY / 2
-            );
-            // door.rotation.y = Math.PI / 2;
-
             this.body.add(wall);
-            this.body.add(monitor);
-            this.body.add(glassWindow);
-            this.body.add(sashedWindow);
-            this.body.add(door);
         }
     };
     window.wall = wall;
 
-    /**----------------------------------------------------------**/
-    /**                      监控室的大玻璃窗                    **/
-    /**----------------------------------------------------------**/
-    var bigGlassWindow = function(width,height){
-        modelObject.call(this,width,height,0.3);
-        this.init();
-    };
-    bigGlassWindow.prototype = {
-        init : function(){
-            this.material = new THREE.MeshPhongMaterial( {
-                color: 0xffffff,
-                transparent:true,
-                opacity: 0.5,
-                side: THREE.FrontSide,
-                wireframe:false});
-            var glassWindowGeometry = new THREE.BoxBufferGeometry(this.width,this.height,this.depth);
-            var glassWindow = new THREE.Mesh(glassWindowGeometry,this.material);
-            glassWindow.rotation.y = Math.PI/2;
-            // glassWindow.castShadow = true;
-            this.body.add(glassWindow);
-        }
-    };
-    /**----------------------------------------------------------**/
-    /**                      可双向拉动的窗户                    **/
-    /**----------------------------------------------------------**/
-    var twoSashedWindow = function(width,height){
-        modelObject.call(this,width,height,0.6);
-        this.leftWindow = new THREE.Group();
-        this.rightWindow = new THREE.Group();
-        this.windowFrameMaterial = null;//窗框的材质
-        this.windowGlassMaterial = null;//玻璃的材质
-        this.frameWidth = 0.2;//边框的宽度
-        this.extrudeSettings = {
-            steps: 1,
-            amount: this.depth,
-            bevelEnabled: false,
-            bevelSegments: 1,
-            bevelSize: 0,
-            bevelThickness: 1
-        };
-        this.init();
-    };
-    twoSashedWindow.prototype = {
-        init : function(){
-            this.windowFrameMaterial = new THREE.MeshLambertMaterial({
-                color: 0xE4E4E4,
-                side : THREE.FrontSide,
-                wireframe:false
-            });
-            this.windowGlassMaterial = new THREE.MeshPhongMaterial( {
-                color: 0xffffff,
-                transparent:true,
-                opacity: 0.5,
-                side: THREE.FrontSide,
-                wireframe:false});
-            //窗的大体框架
-            var windowFrameShape = new rectangleShape(this.width,this.height).build();
-            var topPathWidth = (this.width - 3 * this.frameWidth) / 2,
-                topPathHeight = 1,
-                x1 = (this.width-topPathWidth)/2 - this.frameWidth,
-                x2 = (topPathWidth-this.width)/2 + this.frameWidth,
-                y = (this.height-topPathHeight)/2 - this.frameWidth;
-            var mainPathWidth = this.width - this.frameWidth * 2,
-                mainPathHeight = this.height - this.frameWidth * 3 - topPathHeight,
-                mainx = (this.width-mainPathWidth) / 2 - this.frameWidth,
-                mainy = (mainPathHeight - this.height) / 2 + this.frameWidth;
-            var topLeftPath = new rectanglePath(x1,y,topPathWidth,topPathHeight).build();
-            var topRightPath = new rectanglePath(x2,y,topPathWidth,topPathHeight).build();
-            windowFrameShape.holes.push(topLeftPath);
-            windowFrameShape.holes.push(topRightPath);
 
-            var mainPath = new rectanglePath(mainx,mainy,mainPathWidth,mainPathHeight).build();
-            windowFrameShape.holes.push(mainPath);
 
-            var windowFrameGeometry =  new THREE.ExtrudeBufferGeometry(windowFrameShape, this.extrudeSettings);
-            var windowFrame = new THREE.Mesh(windowFrameGeometry,this.windowFrameMaterial);
-            windowFrame.castShadow = true;
-
-            //顶部的玻璃
-            var topGlassGeometry = new THREE.BoxBufferGeometry(topPathWidth,topPathHeight,0.2);
-            var topLeftGlass = new THREE.Mesh(topGlassGeometry,this.windowGlassMaterial);
-            topLeftGlass.position.set(x1,y,0.3);
-            var topRightGlass = new THREE.Mesh(topGlassGeometry,this.windowGlassMaterial);
-            topRightGlass.position.set(x2,y,0.3);
-            //可拉动的玻璃
-            var mainWindowWidth = mainPathWidth / 2,
-                mainWindowHeight = mainPathHeight,
-                mainWindowX1 = (mainPathWidth - mainWindowWidth) / 2,
-                mainWindowX2 = (mainWindowWidth - mainPathWidth) / 2;
-            var mainWindowExtrudeSettings = {
-                steps: 1,
-                amount: 0.3,
-                bevelEnabled: false,
-                bevelSegments: 1,
-                bevelSize: 1,
-                bevelThickness: 1
-            };
-            var mainWindowFrame = new rectangleFrameObject(mainWindowWidth,mainWindowHeight,this.frameWidth).build();
-            var mainWindowGeometry = new THREE.ExtrudeBufferGeometry(mainWindowFrame,mainWindowExtrudeSettings);
-            var mainLeftWindow = new THREE.Mesh(mainWindowGeometry,this.windowFrameMaterial);
-            mainLeftWindow.castShadow = true;
-            this.leftWindow.add(mainLeftWindow);
-            var mainRightWindow = new THREE.Mesh(mainWindowGeometry,this.windowFrameMaterial);
-            mainRightWindow.castShadow = true;
-            this.rightWindow.add(mainRightWindow);
-
-            var mainGlassGeomety = new THREE.BoxBufferGeometry(mainWindowWidth,mainWindowHeight,0.1);
-
-            var mainLeftGlass = new THREE.Mesh(mainGlassGeomety,this.windowGlassMaterial);
-            mainLeftGlass.position.set(0,0,0.1);
-            this.leftWindow.add(mainLeftGlass);
-            this.leftWindow.position.set(mainWindowX1 - 1,mainy,0);
-
-            var mainRightGlass = new THREE.Mesh(mainGlassGeomety,this.windowGlassMaterial);
-            mainRightGlass.position.set(0,0,0.1);
-            this.rightWindow.add(mainRightGlass);
-            this.rightWindow.position.set(mainWindowX2 + 0.5,mainy,0.3);
-
-            this.body.add(windowFrame);
-            this.body.add(topLeftGlass);
-            this.body.add(topRightGlass);
-            this.body.add(this.leftWindow);
-            this.body.add(this.rightWindow);
-        },
-        open : function(){
-
-        },
-        close : function(){
-
-        }
-    };
-    window.twoSashedWindow = twoSashedWindow;
-
-    /**----------------------------------------------------------**/
-    /**                             单扇门                       **/
-    /**----------------------------------------------------------**/
-    var oneSashedDoor = function(width,height,depth){
-        modelObject.call(this,width,height,depth);
-        this.doorFrameMaterial = null;
-        this.doorGlassMaterial = null;
-        this.frameWidth = 0.3;
-        this.extrudeSettings = {
-            steps: 1,
-            amount: this.depth,
-            bevelEnabled: false,
-            bevelSegments: 1,
-            bevelSize: 0,
-            bevelThickness: 1
-        };
-        this.init();
-    };
-    oneSashedDoor.prototype = {
-        init : function(){
-            this.doorFrameMaterial = new THREE.MeshLambertMaterial({
-                color: 0xE4E4E4,
-                side : THREE.DoubleSide,
-                wireframe:false
-            });
-            this.doorGlassMaterial = new THREE.MeshPhongMaterial( {
-                color: 0xffffff,
-                transparent:true,
-                opacity: 0.5,
-                side: THREE.FrontSide,
-                wireframe:false});
-            this.doorHadleMaterial = new THREE.MeshPhongMaterial({
-                color: 0x63696e,
-                side : THREE.FrontSide,
-                wireframe:false
-            });
-            var doorFrameShape = new rectangleFrameObject(this.width,this.height,this.frameWidth).build();
-            var doorFrameGeometry = new THREE.ExtrudeBufferGeometry(doorFrameShape,this.extrudeSettings);
-
-            var insideWidth = this.width - this.frameWidth * 2,
-                insideHeight = this.height - this.frameWidth * 2;
-            var doorBottomWidth = insideWidth,
-                doorBottomHeight = insideHeight / 2;
-            var doorBottomGeometry = new THREE.PlaneBufferGeometry(doorBottomWidth,doorBottomHeight);
-            doorBottomGeometry.translate(0,(doorBottomHeight - this.height) / 2 ,this.depth/2);
-
-            var doorCenterGeometry = new THREE.BoxBufferGeometry(doorBottomWidth,1,this.depth/2);
-            doorCenterGeometry.translate(0,0 ,this.depth/2);
-
-            //门把手
-            var handleGeometry = new THREE.CylinderBufferGeometry(0.2,0.2,0.2,6,1,false,0,2 * Math.PI);
-            handleGeometry.rotateX(Math.PI / 2);
-            var insideHadle = new THREE.Mesh(handleGeometry,this.doorHadleMaterial);
-            insideHadle.castShadow = true;
-            insideHadle.position.set(this.width / 2 + doorBottomWidth / 2 - 0.2,0,0);
-            var outsideHadle = new THREE.Mesh(handleGeometry,this.doorHadleMaterial);
-            outsideHadle.castShadow = true;
-            outsideHadle.position.set(this.width / 2 + doorBottomWidth / 2 - 0.2,0,this.depth);
-
-            var doorGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries([
-                doorFrameGeometry,
-                doorCenterGeometry,
-                doorBottomGeometry
-            ]);
-            var door = new THREE.Mesh(doorGeometry,this.doorFrameMaterial);
-            door.castShadow = true;
-
-            var doorGlassGeometry = new THREE.BoxBufferGeometry(doorBottomWidth,doorBottomHeight,this.depth/4);
-            var doorGlass = new THREE.Mesh(doorGlassGeometry,this.doorGlassMaterial);
-            doorGlass.position.set(this.width / 2 ,(this.height - doorBottomHeight) / 2,this.depth/2);
-
-            door.position.set(this.width / 2,0,0);
-            this.body.add(door);
-            this.body.add(doorGlass);
-            this.body.add(insideHadle);
-            this.body.add(outsideHadle);
-        },
-        open : function(){
-
-        },
-        close : function(){
-
-        }
-    };
-    window.oneSashedDoor = oneSashedDoor;
 
     /**----------------------------------------------------------**/
     /**                        柱片的支撑                        **/
