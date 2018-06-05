@@ -57,7 +57,7 @@ window.onload = function(){
     //
     // var spotLightHelper = new THREE.SpotLightHelper( spotLight );
     // scene.add( spotLightHelper );
-    var light = new THREE.DirectionalLight( 0xffffff, 1);
+    var light = new THREE.DirectionalLight( 0xffffff, 1.5);
     scene.add( light );
 
     var  sky = new THREE.Sky();
@@ -97,14 +97,13 @@ window.onload = function(){
     scene.add( axesHelper );
 
     var controls = null;
-    if(true){
+    if(false){
         camera.position.set( 0, -1, 0 );
         document.getElementById("blocker").style.display = "block";
         controls = new controller1(scene,camera);
     }else{
         camera.position.set( 10, 40, 0 );
         controls = new controller2(camera,renderer.domElement);
-
     }
 
     var warHouse = new THREE.Group();
@@ -149,7 +148,15 @@ window.onload = function(){
     pipe_4.body.position.set(-wareHouseWidth / 4,wareHouseWallHeight - toTop,wareHouseHeight / 2);
     scene.add(pipe_4.build());
 
-    //创建货架
+    /**----------------------------------------------------------**/
+    /**                         屋顶的建造                       **/
+    /**----------------------------------------------------------**/
+    var myroof = new roof(wareHouseWidth,wareHouseWallHeight,wareHouseHeight);
+    scene.add(myroof.build());
+
+    /**----------------------------------------------------------**/
+    /**                         货架的建造                       **/
+    /**----------------------------------------------------------**/
     var shelfWidth = 10,
         shelfHeight = 20,
         shelfDepth = 3;
@@ -172,19 +179,19 @@ window.onload = function(){
     }
 
     //添加松树
-    for(var i = 0;i<2; i++){
-        for(var j=0;j<9;j++){
-            var pine = new pinetree(5,30,0);
-            pine.body.position.set(Math.pow(-1,i)*(wareHouseWidth / 2 + 12),0,wareHouseHeight / 2 - 10 * j);
-            scene.add(pine.build());
-        }
-    }
-
-    for(var i=0;i<7;i++){
-        var pine = new pinetree(5,30,0);
-        pine.body.position.set(wareHouseWidth / 2 - 10 * i,0,wareHouseHeight / 2 + 12);
-        scene.add(pine.build());
-    }
+    // for(var i = 0;i<2; i++){
+    //     for(var j=0;j<9;j++){
+    //         var pine = new pinetree(5,30,0);
+    //         pine.body.position.set(Math.pow(-1,i)*(wareHouseWidth / 2 + 12),0,wareHouseHeight / 2 - 10 * j);
+    //         scene.add(pine.build());
+    //     }
+    // }
+    //
+    // for(var i=0;i<7;i++){
+    //     var pine = new pinetree(5,30,0);
+    //     pine.body.position.set(wareHouseWidth / 2 - 10 * i,0,wareHouseHeight / 2 + 12);
+    //     scene.add(pine.build());
+    // }
 
     // var light = new THREE.PointLight( 0xffffff, 3, 60);
     // light.position.set( 0, 30, 0 );

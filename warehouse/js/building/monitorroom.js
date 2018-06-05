@@ -130,21 +130,21 @@
             ]);
             this.wall = new THREE.Mesh(this.wallGeometry,this.wallMaterial);
             this.wall.castShadow = true;
-            this.wall.receiveShadow = true;
+            // this.wall.receiveShadow = true;
 
             /**--------           监控室的屋顶 start            ---------**/
             this.roofGeometry = new THREE.BoxBufferGeometry(this.width+0.2,this.depth,0.4, 5,5);
             this.roofGeometry.rotateX(Math.PI / 2);
             this.roofGeometry.translate(0,this.height-0.2,0);
             this.roof = new THREE.Mesh(this.roofGeometry,this.roofMaterial);
-            this.wall.receiveShadow = true;
+            // this.wall.receiveShadow = true;
             /**--------           监控室的屋顶  end            ---------**/
 
             /**--------           监控室的地面 start            ---------**/
             this.floorGeometry = new THREE.PlaneBufferGeometry(this.width,this.depth,5,5);
             this.floorGeometry.rotateX( - Math.PI / 2 );
             this.floor = new THREE.Mesh(this.floorGeometry,this.floorMaterial);
-            this.floor.receiveShadow = true;
+            // this.floor.receiveShadow = true;
             /**--------           监控室的地面 end            ---------**/
 
             /**--------           监控室的大玻璃 start            ---------**/
@@ -257,7 +257,7 @@
 
             var windowFrameGeometry =  new THREE.ExtrudeBufferGeometry(windowFrameShape, this.extrudeSettings);
             var windowFrame = new THREE.Mesh(windowFrameGeometry,this.windowFrameMaterial);
-            windowFrame.castShadow = true;
+            // windowFrame.castShadow = true;
 
             //顶部的玻璃
             var topGlassGeometry = new THREE.BoxBufferGeometry(topPathWidth,topPathHeight,0.2);
@@ -281,10 +281,10 @@
             var mainWindowFrame = new rectangleFrameObject(mainWindowWidth,mainWindowHeight,this.frameWidth).build();
             var mainWindowGeometry = new THREE.ExtrudeBufferGeometry(mainWindowFrame,mainWindowExtrudeSettings);
             var mainLeftWindow = new THREE.Mesh(mainWindowGeometry,this.windowFrameMaterial);
-            mainLeftWindow.castShadow = true;
+            // mainLeftWindow.castShadow = true;
             this.leftWindow.add(mainLeftWindow);
             var mainRightWindow = new THREE.Mesh(mainWindowGeometry,this.windowFrameMaterial);
-            mainRightWindow.castShadow = true;
+            // mainRightWindow.castShadow = true;
             this.rightWindow.add(mainRightWindow);
 
             var mainGlassGeomety = new THREE.BoxBufferGeometry(mainWindowWidth,mainWindowHeight,0.1);
@@ -367,10 +367,10 @@
             var handleGeometry = new THREE.CylinderBufferGeometry(0.2,0.2,0.2,6,1,false,0,2 * Math.PI);
             handleGeometry.rotateX(Math.PI / 2);
             var insideHadle = new THREE.Mesh(handleGeometry,this.doorHadleMaterial);
-            insideHadle.castShadow = true;
+            // insideHadle.castShadow = true;
             insideHadle.position.set(this.width / 2 + doorBottomWidth / 2 - 0.2,0,0);
             var outsideHadle = new THREE.Mesh(handleGeometry,this.doorHadleMaterial);
-            outsideHadle.castShadow = true;
+            // outsideHadle.castShadow = true;
             outsideHadle.position.set(this.width / 2 + doorBottomWidth / 2 - 0.2,0,this.depth);
 
             var doorGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries([
@@ -379,7 +379,7 @@
                 doorBottomGeometry
             ]);
             var door = new THREE.Mesh(doorGeometry,this.doorFrameMaterial);
-            door.castShadow = true;
+            // door.castShadow = true;
 
             var doorGlassGeometry = new THREE.BoxBufferGeometry(doorBottomWidth,doorBottomHeight,this.depth/4,2,2,1);
             var doorGlass = new THREE.Mesh(doorGlassGeometry,this.doorGlassMaterial);

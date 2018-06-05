@@ -304,7 +304,7 @@
             });
             //仓库外面的地面材质
             var outFloorMaterial = new THREE.MeshLambertMaterial({
-                color : 0x656b72,
+                color : 0x363636,
                 side : THREE.FrontSide,
                 wireframe : false
             });
@@ -313,10 +313,10 @@
 
             //仓库的地面
             var floorWidth = this.width - monitorWidth + 0.3;
-            var ware_1_FloorGeometry = new THREE.PlaneBufferGeometry(floorWidth,monitorWidth,3,1);
+            var ware_1_FloorGeometry = new THREE.PlaneBufferGeometry(floorWidth,monitorWidth,5,3);
             ware_1_FloorGeometry.rotateX( - Math.PI / 2 );
             ware_1_FloorGeometry.translate(0.3-monitorWidth / 2,0,monitorWidth / 2 - this.height / 2 + 0.5);
-            var ware_2_FloorGeometry = new THREE.PlaneBufferGeometry(this.width,this.height - monitorWidth + 0.1,4,5);
+            var ware_2_FloorGeometry = new THREE.PlaneBufferGeometry(this.width,this.height - monitorWidth + 0.1,8,10);
             ware_2_FloorGeometry.rotateX( - Math.PI / 2 );
             ware_2_FloorGeometry.translate(0,0,monitorWidth / 2 - 0.1);
             var wareFloorGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries([
@@ -326,15 +326,63 @@
             var wareFloor = new THREE.Mesh(wareFloorGeometry,wareFloorMaterial);
             this.body.add(wareFloor);
 
+            //仓库外的地面
+            var w = 100;
+            var outFloorGeometry_1 = new THREE.PlaneBufferGeometry(this.width,w,8,10);
+            outFloorGeometry_1.rotateX( - Math.PI / 2 );
+            outFloorGeometry_1 .translate(0,0,(-this.height - w) / 2);
+            var outFloorGeometry_2 = new THREE.PlaneBufferGeometry(this.width,w,8,10);
+            outFloorGeometry_2.rotateX( - Math.PI / 2 );
+            outFloorGeometry_2 .translate(0,0,(this.height + w) / 2);
+            var outFloorGeometry_3 = new THREE.PlaneBufferGeometry(w,2 * w + this.height,12,30);
+            outFloorGeometry_3.rotateX( - Math.PI / 2 );
+            outFloorGeometry_3 .translate((this.width + w) / 2,0,0);
+            var outFloorGeometry_4 = new THREE.PlaneBufferGeometry(w,2 * w + this.height,12,30);
+            outFloorGeometry_4.rotateX( - Math.PI / 2 );
+            outFloorGeometry_4 .translate(- (this.width + w) / 2,0,0);
 
-            // var floorGeometry = new THREE.PlaneBufferGeometry(this.width,this.height);
-            // floorGeometry.rotateX( - Math.PI / 2 );
-            // var floor = new THREE.Mesh(floorGeometry, this.material);
-            // floor.receiveShadow = true;
-            // this.body.add(floor);
+            var outFloorGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries([
+                outFloorGeometry_1,
+                outFloorGeometry_2,
+                outFloorGeometry_3,
+                outFloorGeometry_4
+            ]);
+            var outFloor = new THREE.Mesh(outFloorGeometry,outFloorMaterial);
+            this.body.add(outFloor);
         }
     };
     widnow.floor = floor;
+
+    var roof = function(width,height,depth){
+        modelObject.call(this,width,height,depth);
+        this.roofGeometry = null;
+        this.material = new THREE.MeshLambertMaterial({
+            color : 0xff8e61,
+            side : THREE.FrontSide,
+            wireframe : false
+        });
+        this.init();
+    };
+    roof.prototype = {
+        init : function(){
+            var angle = Math.PI / 8;
+            var roofWidth = this.width / 2 / Math.cos(angle);
+            var roofGeometry_1 = new THREE.BoxBufferGeometry(roofWidth + 2,0.5,this.depth + 2,4,1,10);
+            roofGeometry_1.rotateZ(angle);
+            roofGeometry_1.translate(-this.width / 4 - 0.5,0,0);
+            var roofGeometry_2 = new THREE.BoxBufferGeometry(roofWidth + 2,0.5,this.depth + 2,4,1,10);
+            roofGeometry_2.rotateZ(-1* angle);
+            roofGeometry_2.translate(this.width / 4 + 0.5,0,0);
+            this.roofGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries([
+                roofGeometry_1,
+                roofGeometry_2
+            ]);
+            this.roofGeometry.translate(0,this.height + this.width / 4 * Math.tan(angle),0);
+            var roof = new THREE.Mesh(this.roofGeometry,this.material);
+            this.body.add(roof);
+        }
+    };
+    window.roof = roof;
 
     /**----------------------------------------------------------**/
     /**                           四周的墙面                     **/
